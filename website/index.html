@@ -142,7 +142,7 @@
         </h1>
 
         <p class="font-sans text-lg sm:text-xl text-liminary-body leading-relaxed max-w-xl">
-          Trove turns Telegram's distributed cloud infrastructure into your private, unlimited storage vault. Zero monthly subscriptions, client-side AES-256-GCM encryption, and native desktop performance.
+          Private, unlimited cloud storage backed by Telegram MTProto. Zero monthly fees. Client-side AES-256 encryption.
         </p>
 
         <!-- Primary Action Cluster -->
@@ -777,6 +777,45 @@
     </div>
   </section>
 
+  <!-- Interactive Gradient ASCII Showcase Section (Powered by React Bits WebGL) -->
+  <section class="py-16 px-6 max-w-6xl mx-auto">
+    <div class="relative w-full h-[520px] sm:h-[580px] rounded-3xl overflow-hidden border border-liminary-border bg-[#faf8f6] shadow-sm flex flex-col items-center justify-center text-center p-8 select-none">
+      
+      <!-- GradientASCII WebGL Canvas Container -->
+      <div id="gradient-ascii-banner" class="absolute inset-0 w-full h-full"></div>
+
+      <!-- Foreground Interactive Overlay -->
+      <div class="relative z-10 max-w-xl mx-auto flex flex-col items-center space-y-6 pointer-events-none">
+        
+        <div class="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-white/90 backdrop-blur-md border border-liminary-border text-[11px] font-mono text-liminary-dark shadow-xs">
+          <span class="w-2 h-2 rounded-full bg-liminary-blue animate-pulse"></span>
+          <span>INTERACTIVE MTPROTO DATA STREAM</span>
+        </div>
+
+        <h2 class="font-heading font-black text-3xl sm:text-5xl text-liminary-dark tracking-tight leading-tight">
+          Your private vault.<br>Zero monthly bills.
+        </h2>
+
+        <p class="font-sans text-sm sm:text-base text-liminary-body max-w-md leading-relaxed">
+          Trove turns Telegram into your private, unlimited storage vault. Zero subscriptions, client-side AES-256-GCM encryption, and native desktop performance.
+        </p>
+
+        <div class="pt-2 pointer-events-auto flex items-center gap-3">
+          <a href="#downloads" class="btn-liminary-blue px-7 py-3.5 text-sm inline-flex items-center space-x-2.5 shadow-md hover:shadow-lg transition-all">
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>
+            <span>Download for macOS</span>
+          </a>
+        </div>
+
+        <div class="text-[11px] font-mono text-liminary-muted pt-1">
+          Hover or click anywhere to scramble ASCII stream
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
   <!-- Editorial Footer -->
   <footer class="relative overflow-hidden pt-16 pb-0 px-6 bg-[#faf8f6] border-t border-liminary-border">
     <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-start justify-between gap-10 relative z-10">
@@ -857,6 +896,27 @@
 
     </div>
   </footer>
+
+  <!-- GradientASCII Component Script from React Bits -->
+  <script src="gradient-ascii.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const banner = document.getElementById('gradient-ascii-banner');
+      if (banner && window.initGradientASCII) {
+        window.initGradientASCII(banner, {
+          colors: ["#1e3fd8", "#edf1ff", "#a5d8ff", "#38bdf8"],
+          shape: "horizon",
+          characters: " =+xX0S8#@",
+          cellSize: 18,
+          density: 0.98,
+          glow: 0.45,
+          lightMode: true,
+          mouseInteraction: true,
+          clickEffect: "wave"
+        });
+      }
+    });
+  </script>
 
 </body>
 </html>
