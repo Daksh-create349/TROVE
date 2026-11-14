@@ -116,13 +116,23 @@ vec3 pinch(vec2 p, float time, out float order) {
 }
 
 vec3 rise(vec2 p, float time, out float order) {
-  float wide = max(uAspect, 0.9);
-  vec2 center = vec2(0.05 * sin(time * 0.45) * wide, -0.7);
-  vec2 radius = vec2(0.82 * wide, 0.64 * (1.0 + 0.04 * sin(time * 0.8)));
-  float d = length((p - center) / radius);
-  float soft = mix(0.6, 1.15, uSoftness);
-  float t = clamp(pow(clamp(1.0 - d, 0.0, 1.0), soft) * 1.35, 0.0, 1.0);
-  order = clamp((d - 0.2) * 1.3, 0.0, 1.0);
+  float wide = max(uAspect, 1.0);
+  vec2 origin = vec2(0.04 * sin(time * 0.35) * wide, -0.6);
+  vec2 delta = p - origin;
+  float dist = length(delta / vec2(wide * 1.1, 1.15));
+  float angle = atan(delta.y, delta.x);
+
+  float ray1 = sin(angle * 6.0 + time * 0.3) * 0.5 + 0.5;
+  float ray2 = sin(angle * 14.0 - time * 0.22 + 1.2) * 0.5 + 0.5;
+  float ray3 = noise(vec2(angle * 3.5, time * 0.18));
+  float rayBeams = pow(ray1 * 0.45 + ray2 * 0.35 + ray3 * 0.20, 1.2);
+
+  float dome = exp(-dist * 1.45);
+  float intensity = dome * (0.65 + 0.75 * rayBeams);
+  float boundaryFade = smoothstep(1.3, 0.1, dist);
+  float t = clamp(intensity * boundaryFade * 1.4, 0.0, 1.0);
+
+  order = clamp(dist * 1.1, 0.0, 1.0);
   return vec3(t, t, 0.0);
 }
 
@@ -428,7 +438,10 @@ function initGradientASCII(container, options = {}) {
   canvas.style.height = '100%';
   canvas.style.display = 'block';
   canvas.style.pointerEvents = 'none';
-  container.style.position = 'relative';
+  if (window.getComputedStyle(container).position === 'static') {
+    container.style.position = 'relative';
+  }
+  container.style.overflow = 'hidden';
   container.insertBefore(canvas, container.firstChild);
 
   const palette = (Array.isArray(options.colors) && options.colors.length ? options.colors : DEFAULT_COLORS).slice(0, MAX_COLORS);
@@ -461,6 +474,7 @@ function initGradientASCII(container, options = {}) {
   const gl = canvas.getContext('webgl2', {
     alpha: true,
     premultipliedAlpha: true,
+    preserveDrawingBuffer: true,
     antialias: false,
     depth: false,
     stencil: false
@@ -515,7 +529,7 @@ function initGradientASCII(container, options = {}) {
   let paletteKey = '';
   let time = 0;
   let glyphTime = 0;
-  let introClock = settings.intro && !reduce ? 0 : 1;
+  let introClock = 1;
   let frameSeed = 0;
   let grainClock = 0;
   let raf = 0;
@@ -772,11 +786,12 @@ function initGradientASCII(container, options = {}) {
       last = 0;
       wake();
     }
-  });
+  }, { rootMargin: "600px 0px" });
   intersection.observe(container);
 
-  container.addEventListener('pointermove', onPointerMove, { passive: true });
-  container.addEventListener('pointerdown', onPointerDown, { passive: true });
+  const targetEl = container.parentElement || container;
+  targetEl.addEventListener('pointermove', onPointerMove, { passive: true });
+  targetEl.addEventListener('pointerdown', onPointerDown, { passive: true });
 
   resize();
   wake();
