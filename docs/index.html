@@ -666,9 +666,9 @@
     </div>
   </section>
 
-  <!-- Editorial Footer (Liminary Style) -->
-  <footer class="py-16 px-6 bg-[#faf8f6] border-t border-liminary-border">
-    <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-start justify-between gap-10">
+  <!-- Editorial Footer -->
+  <footer class="relative overflow-hidden pt-16 pb-0 px-6 bg-[#faf8f6] border-t border-liminary-border">
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-start justify-between gap-10 relative z-10">
       
       <!-- Brand & Description -->
       <div class="space-y-3 max-w-sm">
@@ -709,28 +709,23 @@
     </div>
 
     <!-- Bottom Disclaimer -->
-    <div class="max-w-6xl mx-auto mt-12 pt-6 border-t border-liminary-border flex flex-col sm:flex-row justify-between text-[11px] text-liminary-muted gap-2">
+    <div class="max-w-6xl mx-auto mt-12 pt-6 border-t border-liminary-border flex flex-col sm:flex-row justify-between text-[11px] text-liminary-muted gap-2 relative z-10">
       <p>Trove is an autonomous open-source project and is not affiliated with or endorsed by Telegram FZ-LLC.</p>
       <p>Built with Electron, Vite, TypeScript &amp; GramJS.</p>
     </div>
 
-    <!-- Massive Submerged Watermark: Logo + Big Trove Wordmark (Light, Half-Visible, Blurred Bottom) -->
-    <div class="relative w-full overflow-hidden pt-10 sm:pt-16 pb-0 mt-4 flex flex-col items-center justify-center select-none pointer-events-none">
-      
-      <!-- Logo + Giant Typography -->
-      <div class="flex items-center justify-center space-x-4 sm:space-x-8 md:space-x-12 translate-y-6 sm:translate-y-10 md:translate-y-14 opacity-[0.12]">
+    <!-- Submerged Watermark: Centered Logo + Big Gradient Wordmark -->
+    <div class="relative w-full overflow-hidden mt-12 pb-6 flex flex-col items-center justify-center pointer-events-none select-none" style="-webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 45%, transparent 90%); mask-image: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 45%, transparent 90%);">
+      <div class="flex items-center justify-center gap-4 sm:gap-7 translate-y-3 sm:translate-y-5">
         <img 
           src="assets/logo.png" 
-          alt="Trove Watermark Logo" 
-          class="w-16 sm:w-28 md:w-40 lg:w-48 h-auto object-contain grayscale"
+          alt="Trove 3D Logo" 
+          class="w-14 sm:w-20 md:w-28 h-auto object-contain opacity-40 drop-shadow-sm"
         >
-        <span class="font-heading font-extrabold text-7xl sm:text-9xl md:text-[170px] lg:text-[220px] tracking-tighter text-liminary-dark uppercase leading-none">
+        <span class="font-heading font-black text-6xl sm:text-8xl md:text-[130px] lg:text-[160px] tracking-tight text-[#121212]/30 uppercase leading-none select-none">
           TROVE
         </span>
       </div>
-
-      <!-- Bottom Gradient Blur & Soft Dissolve -->
-      <div class="absolute inset-x-0 bottom-0 h-16 sm:h-24 md:h-32 bg-gradient-to-t from-[#faf8f6] via-[#faf8f6]/80 to-transparent backdrop-blur-[3px]"></div>
     </div>
   </footer>
 
