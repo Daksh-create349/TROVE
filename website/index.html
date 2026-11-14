@@ -825,13 +825,36 @@
       <p>Built with Electron, Vite, TypeScript &amp; GramJS.</p>
     </div>
 
-    <!-- Submerged 3D Chrome Watermark (Neoflo Style) -->
-    <div class="relative w-full overflow-hidden mt-6 -mb-4 sm:-mb-8 flex flex-col items-center justify-center pointer-events-none select-none">
-      <img 
-        src="assets/trove-footer-watermark-transparent.png" 
-        alt="Trove Chrome 3D Brandmark" 
-        class="w-full max-w-3xl sm:max-w-4xl h-auto object-contain select-none"
+    <!-- Submerged Watermark: Original 3D Blue Logo + TROVE Proper with Neoflo-style Floor Blur Reflection -->
+    <div class="relative w-full overflow-hidden pt-12 pb-4 mt-6 flex flex-col items-center justify-center pointer-events-none select-none">
+      
+      <!-- Primary Upright Logo + Proper TROVE Text -->
+      <div class="flex items-center justify-center gap-4 sm:gap-7 md:gap-9 z-10">
+        <img 
+          src="assets/logo.png" 
+          alt="Trove Original 3D Logo" 
+          class="w-16 sm:w-24 md:w-32 lg:w-36 h-auto object-contain drop-shadow-sm"
+        >
+        <span class="font-heading font-black text-6xl sm:text-8xl md:text-9xl lg:text-[140px] tracking-tight text-liminary-dark uppercase leading-none select-none">
+          TROVE
+        </span>
+      </div>
+
+      <!-- Neoflo-style Frosted Ground Reflection Blur -->
+      <div 
+        class="flex items-center justify-center gap-4 sm:gap-7 md:gap-9 transform -scale-y-100 opacity-20 filter blur-[4px] sm:blur-[7px] -mt-2 sm:-mt-4"
+        style="-webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.35) 45%, transparent 85%); mask-image: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.35) 45%, transparent 85%);"
       >
+        <img 
+          src="assets/logo.png" 
+          alt="" 
+          class="w-16 sm:w-24 md:w-32 lg:w-36 h-auto object-contain"
+        >
+        <span class="font-heading font-black text-6xl sm:text-8xl md:text-9xl lg:text-[140px] tracking-tight text-liminary-dark uppercase leading-none select-none">
+          TROVE
+        </span>
+      </div>
+
     </div>
   </footer>
 
