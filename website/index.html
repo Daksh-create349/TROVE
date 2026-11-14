@@ -1,6 +1,5 @@
 <!doctype html>
 <!-- Trove — Personal Encrypted Cloud Storage Backed by Telegram MTProto -->
-<!-- Styled with Liminary editorial design language: warm porcelain palette, Syne + Inter + Roboto Mono typography, floating frosted dock -->
 <html lang="en" class="scroll-smooth">
 <head>
   <meta charset="utf-8">
@@ -12,7 +11,7 @@
   <!-- Typography: Syne (Headings), Inter (Body), Roboto Mono (Labels) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -30,11 +29,10 @@
               bg: '#faf8f6',
               card: '#ffffff',
               border: '#eeebe4',
-              borderSubtle: '#bcbcbc29',
               dark: '#121212',
               heading: '#2c2c2c',
               body: '#616161',
-              muted: '#686868',
+              muted: '#767676',
               blue: '#80bbeb',
               blueHover: '#6eafe3',
               iceBlue: '#dde7f2',
@@ -70,30 +68,18 @@
       -moz-osx-font-smoothing: grayscale;
     }
 
-    /* Liminary Card Styling */
     .liminary-card {
       background-color: #ffffff;
       border: 1px solid #eeebe4;
       border-radius: 24px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.025);
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
     .liminary-card:hover {
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.045);
     }
 
-    /* Floating Pill Dock */
-    .floating-dock {
-      background-color: rgba(255, 255, 255, 0.88);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(0, 0, 0, 0.08);
-      border-radius: 40px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
-    }
-
-    /* Signature Liminary Primary Button */
     .btn-liminary-blue {
       background-color: #80bbeb;
       color: #121212;
@@ -121,7 +107,6 @@
       border-color: #dcd7ce;
     }
 
-    /* Table borders */
     table {
       border-collapse: separate;
       border-spacing: 0;
@@ -130,185 +115,170 @@
 </head>
 <body class="selection:bg-liminary-blue selection:text-black">
 
-  <!-- Top Floating Navigation Dock (Liminary Header Style) -->
-  <div class="fixed top-5 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
-    <header class="floating-dock pointer-events-auto w-full max-w-5xl h-14 px-6 flex items-center justify-between">
+  <!-- Main Hero Section (No Navbar, 2-Column: Content on Left, Big 3D Logo on Right) -->
+  <section class="pt-16 sm:pt-24 pb-20 px-6 max-w-6xl mx-auto">
+    
+    <!-- Top Brand Kicker -->
+    <div class="flex items-center space-x-3 mb-8">
+      <span class="w-2.5 h-2.5 rounded-full bg-liminary-blue"></span>
+      <span class="font-syne font-bold text-sm tracking-wider text-liminary-dark">TROVE</span>
+      <span class="text-liminary-border">|</span>
+      <span class="text-xs font-mono font-medium text-liminary-muted uppercase tracking-wider">
+        Personal Encrypted Cloud Storage
+      </span>
+      <span class="hidden sm:inline text-xs font-mono px-2 py-0.5 rounded-full bg-liminary-iceBlue text-liminary-slateText">
+        v0.1.0 (Apple Silicon)
+      </span>
+    </div>
+
+    <!-- 2-Column Hero Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
       
-      <!-- Logo + Name -->
-      <a href="#" class="flex items-center space-x-3 group">
-        <img src="assets/logo.png" alt="Trove" class="w-7 h-7 object-contain rounded-md">
-        <div class="flex items-center space-x-2">
-          <span class="font-syne font-bold text-base tracking-tight text-liminary-dark">
-            TROVE
-          </span>
-          <span class="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded bg-liminary-iceBlue text-liminary-slateText">
-            v0.1.0
-          </span>
+      <!-- Left Column: Headline, Description, Actions (7 cols) -->
+      <div class="lg:col-span-7 space-y-6">
+        
+        <h1 class="font-syne font-extrabold text-5xl sm:text-6xl lg:text-7xl tracking-tight text-liminary-dark leading-[1.05]">
+          Your storage<br>compounds here.
+        </h1>
+
+        <p class="font-sans text-lg sm:text-xl text-liminary-body leading-relaxed max-w-xl">
+          Trove turns Telegram's distributed cloud infrastructure into your private, unlimited storage vault. Zero monthly subscriptions, client-side AES-256-GCM encryption, and native desktop performance.
+        </p>
+
+        <!-- Primary Action Cluster -->
+        <div class="pt-2 flex flex-wrap items-center gap-3">
+          <a href="#downloads" class="btn-liminary-blue px-6 py-3.5 text-sm inline-flex items-center space-x-2.5 shadow-sm">
+            <!-- Official Apple Logo SVG -->
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+              <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/>
+            </svg>
+            <span>Download for macOS</span>
+          </a>
+
+          <a href="https://github.com/Daksh-create349/TROVE" target="_blank" rel="noopener noreferrer" class="btn-liminary-outline px-6 py-3.5 text-sm inline-flex items-center space-x-2">
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+            <span>GitHub Repository</span>
+          </a>
         </div>
-      </a>
 
-      <!-- Desktop Nav Items -->
-      <nav class="hidden md:flex items-center space-x-7 text-xs font-medium text-liminary-body">
-        <a href="#features" class="hover:text-liminary-dark transition-colors">Features</a>
-        <a href="#downloads" class="hover:text-liminary-dark transition-colors">Downloads</a>
-        <a href="#architecture" class="hover:text-liminary-dark transition-colors">Architecture</a>
-        <a href="#security" class="hover:text-liminary-dark transition-colors">Security</a>
-        <a href="#specifications" class="hover:text-liminary-dark transition-colors">Specifications</a>
-      </nav>
+        <!-- Release Metadata Under Buttons -->
+        <div class="pt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-mono text-liminary-muted">
+          <span>macOS 12+ (Apple Silicon)</span>
+          <span>·</span>
+          <span>Trove-0.1.0-arm64.dmg</span>
+          <span>·</span>
+          <span>170 MB</span>
+          <span>·</span>
+          <span>MIT License</span>
+        </div>
 
-      <!-- Right Action CTA -->
-      <div class="flex items-center space-x-3">
-        <a href="https://github.com/Daksh-create349/TROVE" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex items-center space-x-1.5 text-xs text-liminary-body hover:text-liminary-dark transition-colors">
-          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-          <span>GitHub</span>
-        </a>
-
-        <a href="#downloads" class="btn-liminary-blue text-xs px-3.5 py-1.5 inline-flex items-center space-x-1.5">
-          <span>Get Trove</span>
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-        </a>
       </div>
 
-    </header>
-  </div>
-
-  <!-- Hero Section (Liminary Content Layout) -->
-  <section class="pt-32 pb-20 px-6 max-w-6xl mx-auto">
-    <div class="space-y-6 max-w-3xl">
-      
-      <!-- Kicker Pill (Liminary soft warm badge) -->
-      <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-liminary-warmPill text-liminary-warmText text-xs font-mono font-medium">
-        <span>MTPROTO 2.0</span>
-        <span>·</span>
-        <span>ZERO-KNOWLEDGE STORAGE VAULT</span>
-      </div>
-
-      <!-- Main Headline in Syne (Liminary Signature) -->
-      <h1 class="font-syne font-bold text-5xl sm:text-6xl lg:text-7xl tracking-tight text-liminary-dark leading-[1.06]">
-        Your storage<br>compounds here.
-      </h1>
-
-      <!-- Subhead in Inter -->
-      <p class="font-sans text-lg sm:text-xl text-liminary-body leading-relaxed max-w-2xl">
-        Trove is personal encrypted cloud storage for professionals, researchers, and developers who refuse cloud vendor lock-in. Backed by Telegram's distributed network, with client-side AES-256-GCM encryption.
-      </p>
-
-      <!-- Action Button Group -->
-      <div class="pt-4 flex flex-wrap items-center gap-3">
-        <!-- Primary macOS Download Button -->
-        <a href="#downloads" class="btn-liminary-blue px-5 py-3 text-sm inline-flex items-center space-x-2.5 shadow-sm">
-          <!-- Official Apple Logo SVG -->
-          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
-            <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/>
-          </svg>
-          <span>Download for macOS</span>
-        </a>
-
-        <!-- Secondary GitHub Button -->
-        <a href="https://github.com/Daksh-create349/TROVE" target="_blank" rel="noopener noreferrer" class="btn-liminary-outline px-5 py-3 text-sm inline-flex items-center space-x-2">
-          <span>Explore Source</span>
-          <svg class="w-3.5 h-3.5 text-liminary-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-        </a>
-      </div>
-
-      <!-- Trust Meta Under Button -->
-      <div class="pt-1 flex items-center space-x-4 text-xs font-mono text-liminary-muted">
-        <span>Apple Silicon · macOS 12+</span>
-        <span>·</span>
-        <span>Release v0.1.0</span>
-        <span>·</span>
-        <span>170 MB (.dmg)</span>
+      <!-- Right Column: Big Trove 3D Logo (5 cols) -->
+      <div class="lg:col-span-5 flex items-center justify-center lg:justify-end">
+        <div class="relative group">
+          <!-- Soft natural glow behind 3D logo -->
+          <div class="absolute -inset-4 bg-gradient-to-tr from-[#80bbeb]/20 to-transparent rounded-full blur-2xl opacity-60 pointer-events-none"></div>
+          
+          <!-- Big Trove 3D Logo -->
+          <img 
+            src="assets/logo.png" 
+            alt="Trove 3D Vault Logo" 
+            class="relative w-72 sm:w-88 lg:w-[420px] h-auto object-contain drop-shadow-xl select-none transition-transform duration-500 hover:scale-[1.03]"
+          >
+        </div>
       </div>
 
     </div>
 
-    <!-- Hero Product Window (Liminary Featured Frame) -->
-    <div class="mt-14">
-      <div class="liminary-card overflow-hidden border border-liminary-border">
-        
-        <!-- Window Chrome / Title Bar -->
-        <div class="h-11 px-5 bg-[#f5f2eb] border-b border-liminary-border flex items-center justify-between">
-          <div class="flex items-center space-x-2">
-            <span class="w-3 h-3 rounded-full bg-[#ff5f56]"></span>
-            <span class="w-3 h-3 rounded-full bg-[#ffbd2e]"></span>
-            <span class="w-3 h-3 rounded-full bg-[#27c93f]"></span>
-          </div>
-          <div class="text-xs font-mono text-liminary-muted font-medium">
-            Trove Desktop — Personal Cloud Vault
-          </div>
-          <div class="text-xs font-mono text-liminary-muted">
-            v0.1.0
-          </div>
-        </div>
-
-        <!-- Application Screenshot -->
-        <div class="relative bg-black">
-          <img src="assets/trove-main-vault.jpg" alt="Trove Cloud Vault Application Dashboard" class="w-full h-auto object-cover">
-        </div>
-
-      </div>
-
-      <!-- 3 Liminary-Style Spotlight Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6">
-        
-        <div class="liminary-card p-6">
-          <div class="text-[11px] font-mono uppercase text-liminary-muted tracking-wider mb-2">
-            STREAMING TRANSFERS
-          </div>
-          <h3 class="font-syne font-bold text-base text-liminary-dark mb-1">
-            Real-Time Transfer Dock
-          </h3>
-          <p class="text-xs text-liminary-body leading-relaxed">
-            Non-blocking drawer with live progress bars, chunk counts, and pause/cancel controls that keep you productive.
-          </p>
-        </div>
-
-        <div class="liminary-card p-6">
-          <div class="text-[11px] font-mono uppercase text-liminary-muted tracking-wider mb-2">
-            DIRECT INTEGRATION
-          </div>
-          <h3 class="font-syne font-bold text-base text-liminary-dark mb-1">
-            MTProto Saved Messages
-          </h3>
-          <p class="text-xs text-liminary-body leading-relaxed">
-            Direct peer-to-peer connection with Telegram's data centers. No intermediate relays or third-party servers.
-          </p>
-        </div>
-
-        <div class="liminary-card p-6">
-          <div class="text-[11px] font-mono uppercase text-liminary-muted tracking-wider mb-2">
-            SAFETY & INTEGRITY
-          </div>
-          <h3 class="font-syne font-bold text-base text-liminary-dark mb-1">
-            Atomic Folder Deletion
-          </h3>
-          <p class="text-xs text-liminary-body leading-relaxed">
-            Synchronized deletion cleans both the remote MTProto message catalog and the local SQLite database cleanly.
-          </p>
-        </div>
-
-      </div>
-    </div>
   </section>
 
-  <!-- Platform Downloads Matrix (Install for Mac, Windows, Linux) -->
-  <section id="downloads" class="py-24 px-6 bg-white border-y border-liminary-border">
-    <div class="max-w-6xl mx-auto">
+  <!-- Live Application Showcase (Liminary Light Frame) -->
+  <section class="pb-24 px-6 max-w-6xl mx-auto">
+    <div class="liminary-card overflow-hidden border border-liminary-border">
       
-      <!-- Section Editorial Header -->
-      <div class="max-w-2xl mb-16">
-        <div class="text-xs font-mono uppercase tracking-wider text-liminary-muted mb-2">
-          PLATFORM INSTALLERS
+      <!-- macOS Window Header Bar -->
+      <div class="h-11 px-5 bg-[#f6f3ed] border-b border-liminary-border flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <span class="w-3 h-3 rounded-full bg-[#ff5f56]"></span>
+          <span class="w-3 h-3 rounded-full bg-[#ffbd2e]"></span>
+          <span class="w-3 h-3 rounded-full bg-[#27c93f]"></span>
         </div>
-        <h2 class="font-syne font-bold text-3xl sm:text-4xl text-liminary-dark leading-tight">
-          Native desktop performance. Across platforms.
-        </h2>
-        <p class="font-sans text-base text-liminary-body mt-3 leading-relaxed">
-          Pre-compiled native binaries with low resource overhead, local hardware-accelerated encryption, and instant startup.
+        <div class="text-xs font-mono text-liminary-muted font-medium">
+          Trove Desktop — Personal Cloud Vault
+        </div>
+        <div class="text-xs font-mono text-liminary-muted">
+          v0.1.0
+        </div>
+      </div>
+
+      <!-- Real Desktop App Screenshot -->
+      <div class="relative bg-black">
+        <img src="assets/trove-main-vault.jpg" alt="Trove Application Dashboard" class="w-full h-auto object-cover">
+      </div>
+
+    </div>
+
+    <!-- 3 Clean Sub-Callouts (Directly Under Preview) -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6">
+      
+      <div class="liminary-card p-6">
+        <div class="text-[11px] font-mono uppercase text-liminary-muted tracking-wider mb-2">
+          TRANSFER ENGINE
+        </div>
+        <h3 class="font-syne font-bold text-base text-liminary-dark mb-1">
+          Streaming Transfer Dock
+        </h3>
+        <p class="text-xs text-liminary-body leading-relaxed">
+          Non-blocking bottom drawer with live upload percentages, part-by-part chunk count, and pause/cancel controls.
         </p>
       </div>
 
-      <!-- 3 Column Cards (Liminary Style) -->
+      <div class="liminary-card p-6">
+        <div class="text-[11px] font-mono uppercase text-liminary-muted tracking-wider mb-2">
+          DIRECT PROTOCOL
+        </div>
+        <h3 class="font-syne font-bold text-base text-liminary-dark mb-1">
+          Direct MTProto Connection
+        </h3>
+        <p class="text-xs text-liminary-body leading-relaxed">
+          Direct TLS peer connection to Telegram's Saved Messages without passing through any intermediate proxy server.
+        </p>
+      </div>
+
+      <div class="liminary-card p-6">
+        <div class="text-[11px] font-mono uppercase text-liminary-muted tracking-wider mb-2">
+          SAFETY & INTEGRITY
+        </div>
+        <h3 class="font-syne font-bold text-base text-liminary-dark mb-1">
+          Atomic Folder Deletion
+        </h3>
+        <p class="text-xs text-liminary-body leading-relaxed">
+          Synchronized deletion cleans both the remote MTProto message catalog and the local SQLite database.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Platform Downloads Section (Install for Mac, Windows, Linux) -->
+  <section id="downloads" class="py-24 px-6 bg-white border-y border-liminary-border">
+    <div class="max-w-6xl mx-auto">
+      
+      <!-- Section Header -->
+      <div class="max-w-2xl mb-16">
+        <div class="text-xs font-mono uppercase tracking-wider text-liminary-muted mb-2">
+          INSTALLATION & PACKAGES
+        </div>
+        <h2 class="font-syne font-bold text-3xl sm:text-4xl text-liminary-dark leading-tight">
+          Native desktop performance across platforms.
+        </h2>
+        <p class="font-sans text-base text-liminary-body mt-3 leading-relaxed">
+          Download pre-compiled binaries for your system. Engineered with low battery overhead, native integrations, and local encryption.
+        </p>
+      </div>
+
+      <!-- 3-Column Platform Matrix -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         <!-- 1. macOS (Active Download) -->
@@ -484,8 +454,8 @@
     </div>
   </section>
 
-  <!-- Editorial Section 1: "Your files stay confidential. Period." (Liminary Style) -->
-  <section id="security" class="py-24 px-6 max-w-6xl mx-auto">
+  <!-- Editorial Section 1: "Your files stay confidential. Period." -->
+  <section class="py-24 px-6 max-w-6xl mx-auto">
     <div class="space-y-4 max-w-2xl mb-14">
       <div class="text-xs font-mono uppercase tracking-wider text-liminary-muted">
         CLIENT-SIDE SECURITY
@@ -534,8 +504,8 @@
     </div>
   </section>
 
-  <!-- Editorial Section 2: "Save what matters. Download folder as ZIP." (Liminary Style) -->
-  <section id="features" class="py-24 px-6 bg-white border-y border-liminary-border">
+  <!-- Editorial Section 2: "Save what matters. Download folder as ZIP." -->
+  <section class="py-24 px-6 bg-white border-y border-liminary-border">
     <div class="max-w-6xl mx-auto">
       
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -570,7 +540,7 @@
           </div>
         </div>
 
-        <!-- Embedded UI Visual -->
+        <!-- Real UI Screenshots -->
         <div class="space-y-4">
           <div class="liminary-card overflow-hidden border border-liminary-border p-4 bg-[#faf8f6]">
             <img src="assets/upload-progress.png" alt="Trove Upload Transfer Progress Dock" class="w-full h-auto rounded-xl shadow-sm">
@@ -629,8 +599,8 @@
     </div>
   </section>
 
-  <!-- Technical Specifications Table (Liminary Clean Table Style) -->
-  <section id="specifications" class="py-24 px-6 bg-white border-t border-liminary-border">
+  <!-- Technical Comparison Table (Liminary Clean Table Style) -->
+  <section class="py-24 px-6 bg-white border-t border-liminary-border">
     <div class="max-w-6xl mx-auto">
       
       <div class="max-w-2xl mb-12">
