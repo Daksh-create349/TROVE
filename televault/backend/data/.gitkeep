@@ -1,0 +1,8 @@
+# TeleVault runtime data.
+# This directory is gitignored except for this placeholder.
+# It will contain:
+#   televault.db      SQLite metadata (never file contents)
+#   api-token         local API token (owner-only)
+#   master.key        AES-256 key for Telegram session encryption
+#   downloads/        completed download targets
+#   tmp/              staging area for future uploads

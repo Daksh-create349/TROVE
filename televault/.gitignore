@@ -1,0 +1,32 @@
+# Dependencies and build output
+node_modules/
+backend/node_modules/
+backend/dist/
+coverage/
+*.tsbuildinfo
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.session
+*.session-journal
+
+# Private application data (database, encrypted Telegram session, API token,
+# master key, temporary uploads and downloads)
+backend/data/*
+!backend/data/.gitkeep
+
+# SQLite files anywhere in the repo
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+
+# Logs and OS noise
+*.log
+logs/
+.DS_Store
+Thumbs.db
+Desktop.ini
