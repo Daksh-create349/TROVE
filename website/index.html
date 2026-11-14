@@ -1,44 +1,50 @@
-<!DOCTYPE html>
+<!doctype html>
+<!-- Trove — Personal Encrypted Cloud Storage Backed by Telegram MTProto -->
+<!-- Styled with Liminary editorial design language: warm porcelain palette, Syne + Inter + Roboto Mono typography, floating frosted dock -->
 <html lang="en" class="scroll-smooth">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trove — Personal Encrypted Cloud Storage Backed by Telegram MTProto</title>
-  <meta name="description" content="Trove turns Telegram's distributed infrastructure into your private, unlimited, zero-knowledge storage vault. Native desktop client for macOS with client-side AES-256-GCM encryption.">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trove — Personal Encrypted Cloud Storage Backed by Telegram</title>
+  <meta name="description" content="Trove turns Telegram's distributed cloud infrastructure into your private, unlimited, zero-knowledge vault. Native desktop client for macOS with client-side AES-256-GCM encryption.">
   <link rel="icon" type="image/png" href="assets/logo.png">
-  
-  <!-- Typography: Inter + DM Sans + JetBrains Mono -->
+
+  <!-- Typography: Syne (Headings), Inter (Body), Roboto Mono (Labels) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      darkMode: 'class',
       theme: {
         extend: {
           fontFamily: {
-            sans: ['"DM Sans"', '"Inter"', 'system-ui', 'sans-serif'],
-            mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+            syne: ['"Syne"', 'sans-serif'],
+            sans: ['"Inter"', 'sans-serif'],
+            mono: ['"Roboto Mono"', 'monospace'],
           },
           colors: {
-            brand: {
-              50: '#eff6ff',
-              100: '#dbeafe',
-              400: '#60a5fa',
-              500: '#3b82f6',
-              600: '#2563eb',
-              700: '#1d4ed8',
-              900: '#1e3a8a',
-            },
-            surface: {
-              base: '#07080c',
-              elevated: '#0d0f17',
-              panel: '#121520',
-              border: 'rgba(255, 255, 255, 0.08)',
-              borderHover: 'rgba(255, 255, 255, 0.18)',
+            liminary: {
+              bg: '#faf8f6',
+              card: '#ffffff',
+              border: '#eeebe4',
+              borderSubtle: '#bcbcbc29',
+              dark: '#121212',
+              heading: '#2c2c2c',
+              body: '#616161',
+              muted: '#686868',
+              blue: '#80bbeb',
+              blueHover: '#6eafe3',
+              iceBlue: '#dde7f2',
+              slateText: '#374b62',
+              warmPill: '#f9ece5',
+              warmText: '#ad502b',
+              greenPill: '#e6f6ea',
+              greenText: '#276738',
+              beigePill: '#f4efe6',
+              beigeText: '#736b5e',
             }
           }
         }
@@ -47,295 +53,322 @@
   </script>
 
   <style>
+    :root {
+      --bg-cream: #faf8f6;
+      --text-dark: #121212;
+      --text-heading: #2c2c2c;
+      --text-body: #616161;
+      --color-blue: #80bbeb;
+      --card-border: #eeebe4;
+    }
+
     body {
-      background-color: #07080c;
-      color: #f1f5f9;
-      font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+      background-color: var(--bg-cream);
+      color: var(--text-dark);
+      font-family: 'Inter', sans-serif;
       -webkit-font-smoothing: antialiased;
-    }
-    
-    /* Subtle dot grid overlay resembling Liminary / Neoflo */
-    .bg-grid-subtle {
-      background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
-      background-size: 28px 28px;
+      -moz-osx-font-smoothing: grayscale;
     }
 
-    /* Crisp borders without blur */
-    .border-subtle {
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    
-    .border-subtle-hover:hover {
-      border-color: rgba(255, 255, 255, 0.18);
-    }
-
-    .glass-card {
-      background: linear-gradient(180deg, rgba(18, 21, 32, 0.75) 0%, rgba(13, 15, 23, 0.9) 100%);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+    /* Liminary Card Styling */
+    .liminary-card {
+      background-color: #ffffff;
+      border: 1px solid #eeebe4;
+      border-radius: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    /* Code styling */
-    pre, code {
-      font-family: 'JetBrains Mono', monospace;
+    .liminary-card:hover {
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Floating Pill Dock */
+    .floating-dock {
+      background-color: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 40px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+    }
+
+    /* Signature Liminary Primary Button */
+    .btn-liminary-blue {
+      background-color: #80bbeb;
+      color: #121212;
+      border-radius: 12px;
+      font-weight: 600;
+      transition: background-color 0.15s ease, transform 0.15s ease;
+    }
+
+    .btn-liminary-blue:hover {
+      background-color: #6eafe3;
+      transform: translateY(-1px);
+    }
+
+    .btn-liminary-outline {
+      background-color: #ffffff;
+      color: #2c2c2c;
+      border: 1px solid #eeebe4;
+      border-radius: 12px;
+      font-weight: 500;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .btn-liminary-outline:hover {
+      background-color: #faf9f7;
+      border-color: #dcd7ce;
+    }
+
+    /* Table borders */
+    table {
+      border-collapse: separate;
+      border-spacing: 0;
     }
   </style>
 </head>
-<body class="selection:bg-brand-600 selection:text-white">
+<body class="selection:bg-liminary-blue selection:text-black">
 
-  <!-- Top Announcement Bar: Release Status (Clean, static, non-pulsing) -->
-  <div class="border-b border-surface-border bg-surface-elevated/80 text-xs py-2 px-4">
-    <div class="max-w-7xl mx-auto flex items-center justify-between">
-      <div class="flex items-center space-x-3">
-        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono tracking-wide bg-brand-900/60 text-brand-400 border border-brand-500/30">
-          RELEASE v0.1.0
-        </span>
-        <span class="text-slate-400 hidden sm:inline">
-          Trove Desktop for macOS (Apple Silicon M1/M2/M3/M4) is now available.
-        </span>
-      </div>
-      <a href="#downloads" class="text-brand-400 hover:text-brand-300 font-medium inline-flex items-center space-x-1">
-        <span>Get installer</span>
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-      </a>
-    </div>
-  </div>
-
-  <!-- Navigation Header -->
-  <header class="sticky top-0 z-50 backdrop-blur-xl bg-surface-base/80 border-b border-surface-border">
-    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-      <!-- Brand Logo -->
+  <!-- Top Floating Navigation Dock (Liminary Header Style) -->
+  <div class="fixed top-5 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
+    <header class="floating-dock pointer-events-auto w-full max-w-5xl h-14 px-6 flex items-center justify-between">
+      
+      <!-- Logo + Name -->
       <a href="#" class="flex items-center space-x-3 group">
-        <img src="assets/logo.png" alt="Trove Logo" class="w-8 h-8 rounded-lg object-contain">
-        <div class="flex items-baseline space-x-2">
-          <span class="font-bold text-lg tracking-tight text-white group-hover:text-brand-400 transition-colors">
+        <img src="assets/logo.png" alt="Trove" class="w-7 h-7 object-contain rounded-md">
+        <div class="flex items-center space-x-2">
+          <span class="font-syne font-bold text-base tracking-tight text-liminary-dark">
             TROVE
           </span>
-          <span class="text-[10px] font-mono text-slate-400 px-1.5 py-0.5 rounded border border-surface-border bg-surface-elevated">
-            MTProto
+          <span class="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded bg-liminary-iceBlue text-liminary-slateText">
+            v0.1.0
           </span>
         </div>
       </a>
 
-      <!-- Desktop Nav Links -->
-      <nav class="hidden md:flex items-center space-x-8 text-sm text-slate-300">
-        <a href="#features" class="hover:text-white transition-colors">Features</a>
-        <a href="#downloads" class="hover:text-white transition-colors">Downloads</a>
-        <a href="#architecture" class="hover:text-white transition-colors">Architecture</a>
-        <a href="#specifications" class="hover:text-white transition-colors">Specifications</a>
-        <a href="#security" class="hover:text-white transition-colors">Security</a>
+      <!-- Desktop Nav Items -->
+      <nav class="hidden md:flex items-center space-x-7 text-xs font-medium text-liminary-body">
+        <a href="#features" class="hover:text-liminary-dark transition-colors">Features</a>
+        <a href="#downloads" class="hover:text-liminary-dark transition-colors">Downloads</a>
+        <a href="#architecture" class="hover:text-liminary-dark transition-colors">Architecture</a>
+        <a href="#security" class="hover:text-liminary-dark transition-colors">Security</a>
+        <a href="#specifications" class="hover:text-liminary-dark transition-colors">Specifications</a>
       </nav>
 
-      <!-- Action Buttons -->
+      <!-- Right Action CTA -->
       <div class="flex items-center space-x-3">
-        <a href="https://github.com/Daksh-create349/TROVE" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex items-center space-x-2 px-3 py-1.5 rounded-lg border border-surface-border hover:border-surface-borderHover bg-surface-elevated text-xs text-slate-300 hover:text-white transition-colors">
+        <a href="https://github.com/Daksh-create349/TROVE" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex items-center space-x-1.5 text-xs text-liminary-body hover:text-liminary-dark transition-colors">
           <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
           <span>GitHub</span>
         </a>
 
-        <a href="#downloads" class="inline-flex items-center space-x-2 px-4 py-2 rounded-lg bg-brand-600 hover:bg-brand-500 text-white text-xs font-medium tracking-wide transition-all shadow-sm">
-          <span>Download .DMG</span>
+        <a href="#downloads" class="btn-liminary-blue text-xs px-3.5 py-1.5 inline-flex items-center space-x-1.5">
+          <span>Get Trove</span>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
         </a>
       </div>
-    </div>
-  </header>
 
-  <!-- Hero Section -->
-  <section class="relative pt-20 pb-24 overflow-hidden bg-grid-subtle">
-    <!-- Subtle background radial fade -->
-    <div class="absolute inset-0 bg-gradient-to-b from-surface-base via-transparent to-surface-base pointer-events-none"></div>
+    </header>
+  </div>
 
-    <div class="relative max-w-7xl mx-auto px-6">
+  <!-- Hero Section (Liminary Content Layout) -->
+  <section class="pt-32 pb-20 px-6 max-w-6xl mx-auto">
+    <div class="space-y-6 max-w-3xl">
       
-      <!-- Technical Pill Header (Clean, static, NO pulse) -->
-      <div class="flex justify-center mb-6">
-        <div class="inline-flex items-center space-x-2.5 px-3.5 py-1 rounded-full border border-surface-border bg-surface-elevated/90 text-xs font-mono text-slate-300">
-          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-          <span>DIRECT MTPROTO CLIENT</span>
-          <span class="text-slate-600">/</span>
-          <span class="text-slate-400">ZERO CLOUD VENDOR LOCK-IN</span>
-        </div>
+      <!-- Kicker Pill (Liminary soft warm badge) -->
+      <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-liminary-warmPill text-liminary-warmText text-xs font-mono font-medium">
+        <span>MTPROTO 2.0</span>
+        <span>·</span>
+        <span>ZERO-KNOWLEDGE STORAGE VAULT</span>
       </div>
 
-      <!-- Main Headline -->
-      <div class="text-center max-w-4xl mx-auto space-y-6">
-        <h1 class="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-[1.1]">
-          Personal Encrypted Cloud Storage.
-          <span class="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-300 mt-2">
-            Backed by Telegram.
-          </span>
-        </h1>
+      <!-- Main Headline in Syne (Liminary Signature) -->
+      <h1 class="font-syne font-bold text-5xl sm:text-6xl lg:text-7xl tracking-tight text-liminary-dark leading-[1.06]">
+        Your storage<br>compounds here.
+      </h1>
+
+      <!-- Subhead in Inter -->
+      <p class="font-sans text-lg sm:text-xl text-liminary-body leading-relaxed max-w-2xl">
+        Trove is personal encrypted cloud storage for professionals, researchers, and developers who refuse cloud vendor lock-in. Backed by Telegram's distributed network, with client-side AES-256-GCM encryption.
+      </p>
+
+      <!-- Action Button Group -->
+      <div class="pt-4 flex flex-wrap items-center gap-3">
+        <!-- Primary macOS Download Button -->
+        <a href="#downloads" class="btn-liminary-blue px-5 py-3 text-sm inline-flex items-center space-x-2.5 shadow-sm">
+          <!-- Official Apple Logo SVG -->
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+            <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/>
+          </svg>
+          <span>Download for macOS</span>
+        </a>
+
+        <!-- Secondary GitHub Button -->
+        <a href="https://github.com/Daksh-create349/TROVE" target="_blank" rel="noopener noreferrer" class="btn-liminary-outline px-5 py-3 text-sm inline-flex items-center space-x-2">
+          <span>Explore Source</span>
+          <svg class="w-3.5 h-3.5 text-liminary-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </a>
+      </div>
+
+      <!-- Trust Meta Under Button -->
+      <div class="pt-1 flex items-center space-x-4 text-xs font-mono text-liminary-muted">
+        <span>Apple Silicon · macOS 12+</span>
+        <span>·</span>
+        <span>Release v0.1.0</span>
+        <span>·</span>
+        <span>170 MB (.dmg)</span>
+      </div>
+
+    </div>
+
+    <!-- Hero Product Window (Liminary Featured Frame) -->
+    <div class="mt-14">
+      <div class="liminary-card overflow-hidden border border-liminary-border">
         
-        <p class="text-base sm:text-xl text-slate-400 max-w-2xl mx-auto font-normal leading-relaxed">
-          Trove transforms Telegram's global distributed network into a private, unlimited storage vault. Powered by client-side AES-256-GCM encryption, streaming chunk assembly, and a local offline metadata cache.
-        </p>
-
-        <!-- CTA Action Cluster -->
-        <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <a href="#downloads" class="w-full sm:w-auto inline-flex items-center justify-center space-x-3 px-6 py-3.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white text-sm font-semibold tracking-wide transition-all shadow-lg hover:shadow-brand-600/20">
-            <!-- Official Apple Logo SVG -->
-            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
-              <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/>
-            </svg>
-            <span>Download for macOS (Apple Silicon)</span>
-          </a>
-
-          <a href="https://github.com/Daksh-create349/TROVE" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-6 py-3.5 rounded-lg border border-surface-border hover:border-surface-borderHover bg-surface-elevated/80 text-sm font-medium text-slate-300 hover:text-white transition-colors">
-            <span>Explore Source Code</span>
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-          </a>
-        </div>
-
-        <!-- Release metadata text -->
-        <div class="pt-2 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-mono text-slate-400">
-          <span>Version: v0.1.0</span>
-          <span class="text-slate-700">|</span>
-          <span>Binary: Trove-0.1.0-arm64.dmg</span>
-          <span class="text-slate-700">|</span>
-          <span>Size: 170 MB</span>
-          <span class="text-slate-700">|</span>
-          <span>License: MIT</span>
-        </div>
-      </div>
-
-      <!-- Application Window Showcase Frame -->
-      <div class="mt-14 max-w-5xl mx-auto">
-        <div class="rounded-xl overflow-hidden border border-surface-border bg-surface-elevated shadow-2xl shadow-black/80">
-          <!-- macOS Window Title Bar -->
-          <div class="h-10 px-4 bg-surface-panel border-b border-surface-border flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-              <span class="w-3 h-3 rounded-full bg-[#ff5f56]"></span>
-              <span class="w-3 h-3 rounded-full bg-[#ffbd2e]"></span>
-              <span class="w-3 h-3 rounded-full bg-[#27c93f]"></span>
-            </div>
-            <div class="text-xs font-mono text-slate-400 tracking-wide">
-              Trove Desktop — Cloud Vault @Dksh_71
-            </div>
-            <div class="text-xs font-mono text-slate-400">
-              v0.1.0
-            </div>
+        <!-- Window Chrome / Title Bar -->
+        <div class="h-11 px-5 bg-[#f5f2eb] border-b border-liminary-border flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <span class="w-3 h-3 rounded-full bg-[#ff5f56]"></span>
+            <span class="w-3 h-3 rounded-full bg-[#ffbd2e]"></span>
+            <span class="w-3 h-3 rounded-full bg-[#27c93f]"></span>
           </div>
-
-          <!-- Real Screenshot -->
-          <div class="relative bg-black">
-            <img src="assets/trove-main-vault.jpg" alt="Trove Desktop Main Vault Interface" class="w-full h-auto object-cover">
+          <div class="text-xs font-mono text-liminary-muted font-medium">
+            Trove Desktop — Personal Cloud Vault
+          </div>
+          <div class="text-xs font-mono text-liminary-muted">
+            v0.1.0
           </div>
         </div>
 
-        <!-- Feature Callout Cards Directly Beneath Preview -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-          <div class="glass-card rounded-lg p-4 border-subtle">
-            <div class="text-xs font-mono text-brand-400 mb-1">[ DOCK DRAWER ]</div>
-            <h4 class="text-sm font-semibold text-white">Streaming Transfer Dock</h4>
-            <p class="text-xs text-slate-400 mt-1 leading-relaxed">
-              Non-blocking drawer with real-time transfer percentages, live chunk count, and pause/cancel controls.
-            </p>
-          </div>
-
-          <div class="glass-card rounded-lg p-4 border-subtle">
-            <div class="text-xs font-mono text-brand-400 mb-1">[ AUTHENTICATION ]</div>
-            <h4 class="text-sm font-semibold text-white">Direct MTProto Protocol</h4>
-            <p class="text-xs text-slate-400 mt-1 leading-relaxed">
-              Direct peer connection to Telegram's Saved Messages without passing through any intermediate proxy server.
-            </p>
-          </div>
-
-          <div class="glass-card rounded-lg p-4 border-subtle">
-            <div class="text-xs font-mono text-brand-400 mb-1">[ DELETION ENGINE ]</div>
-            <h4 class="text-sm font-semibold text-white">Atomic Folder Purge</h4>
-            <p class="text-xs text-slate-400 mt-1 leading-relaxed">
-              Synchronized deletion cleans both the remote MTProto message catalog and the local SQLite database.
-            </p>
-          </div>
+        <!-- Application Screenshot -->
+        <div class="relative bg-black">
+          <img src="assets/trove-main-vault.jpg" alt="Trove Cloud Vault Application Dashboard" class="w-full h-auto object-cover">
         </div>
 
       </div>
 
+      <!-- 3 Liminary-Style Spotlight Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6">
+        
+        <div class="liminary-card p-6">
+          <div class="text-[11px] font-mono uppercase text-liminary-muted tracking-wider mb-2">
+            STREAMING TRANSFERS
+          </div>
+          <h3 class="font-syne font-bold text-base text-liminary-dark mb-1">
+            Real-Time Transfer Dock
+          </h3>
+          <p class="text-xs text-liminary-body leading-relaxed">
+            Non-blocking drawer with live progress bars, chunk counts, and pause/cancel controls that keep you productive.
+          </p>
+        </div>
+
+        <div class="liminary-card p-6">
+          <div class="text-[11px] font-mono uppercase text-liminary-muted tracking-wider mb-2">
+            DIRECT INTEGRATION
+          </div>
+          <h3 class="font-syne font-bold text-base text-liminary-dark mb-1">
+            MTProto Saved Messages
+          </h3>
+          <p class="text-xs text-liminary-body leading-relaxed">
+            Direct peer-to-peer connection with Telegram's data centers. No intermediate relays or third-party servers.
+          </p>
+        </div>
+
+        <div class="liminary-card p-6">
+          <div class="text-[11px] font-mono uppercase text-liminary-muted tracking-wider mb-2">
+            SAFETY & INTEGRITY
+          </div>
+          <h3 class="font-syne font-bold text-base text-liminary-dark mb-1">
+            Atomic Folder Deletion
+          </h3>
+          <p class="text-xs text-liminary-body leading-relaxed">
+            Synchronized deletion cleans both the remote MTProto message catalog and the local SQLite database cleanly.
+          </p>
+        </div>
+
+      </div>
     </div>
   </section>
 
-  <!-- Platform Downloads Section (Install for Mac, Windows, Linux) -->
-  <section id="downloads" class="py-24 border-t border-surface-border bg-surface-base">
-    <div class="max-w-7xl mx-auto px-6">
+  <!-- Platform Downloads Matrix (Install for Mac, Windows, Linux) -->
+  <section id="downloads" class="py-24 px-6 bg-white border-y border-liminary-border">
+    <div class="max-w-6xl mx-auto">
       
-      <!-- Section Header -->
-      <div class="max-w-3xl mb-16">
-        <div class="text-xs font-mono tracking-widest text-brand-400 uppercase mb-2">
-          [ INSTALLATION & PLATFORMS ]
+      <!-- Section Editorial Header -->
+      <div class="max-w-2xl mb-16">
+        <div class="text-xs font-mono uppercase tracking-wider text-liminary-muted mb-2">
+          PLATFORM INSTALLERS
         </div>
-        <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-white">
-          Native desktop performance across platforms.
+        <h2 class="font-syne font-bold text-3xl sm:text-4xl text-liminary-dark leading-tight">
+          Native desktop performance. Across platforms.
         </h2>
-        <p class="text-slate-400 text-base mt-3">
-          Download pre-compiled binaries for your system. Engineered with low battery overhead, native system integrations, and client-side encryption.
+        <p class="font-sans text-base text-liminary-body mt-3 leading-relaxed">
+          Pre-compiled native binaries with low resource overhead, local hardware-accelerated encryption, and instant startup.
         </p>
       </div>
 
-      <!-- 3-Column Platform Matrix -->
+      <!-- 3 Column Cards (Liminary Style) -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         <!-- 1. macOS (Active Download) -->
-        <div class="glass-card rounded-xl p-8 border-brand-500/30 flex flex-col justify-between relative overflow-hidden group">
-          <!-- Subtle top accent line -->
-          <div class="absolute top-0 left-0 right-0 h-1 bg-brand-500"></div>
-
+        <div class="bg-[#faf8f6] border border-liminary-border rounded-3xl p-8 flex flex-col justify-between relative">
           <div>
             <!-- Header: Official Apple Logo & Badge -->
             <div class="flex items-center justify-between mb-6">
-              <div class="w-12 h-12 rounded-lg bg-surface-elevated border border-surface-border flex items-center justify-center text-white">
+              <div class="w-12 h-12 rounded-xl bg-white border border-liminary-border flex items-center justify-center text-liminary-dark shadow-sm">
                 <!-- Official Apple Monochrome Vector SVG -->
                 <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
                   <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/>
                 </svg>
               </div>
-              <span class="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded text-xs font-mono font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                <span>AVAILABLE NOW</span>
+              <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-mono font-medium bg-liminary-greenPill text-liminary-greenText">
+                AVAILABLE NOW
               </span>
             </div>
 
             <!-- Title & Architecture Details -->
-            <h3 class="text-xl font-bold text-white mb-2">macOS</h3>
-            <p class="text-xs font-mono text-slate-400 mb-4">
+            <h3 class="font-syne font-bold text-2xl text-liminary-dark mb-1">macOS</h3>
+            <p class="text-xs font-mono text-liminary-muted mb-4">
               Apple Silicon (M1 / M2 / M3 / M4) · macOS 12+
             </p>
-            <p class="text-sm text-slate-400 leading-relaxed mb-6">
+            <p class="text-sm text-liminary-body leading-relaxed mb-6">
               Full native macOS build. Includes drag-and-drop folder uploads, background worker efficiency, and local hardware-accelerated encryption.
             </p>
 
-            <!-- Technical Specification Table -->
-            <div class="space-y-2 py-4 border-y border-surface-border text-xs font-mono mb-6">
-              <div class="flex justify-between text-slate-400">
+            <!-- Specs Table -->
+            <div class="space-y-2 py-4 border-y border-liminary-border text-xs font-mono mb-6">
+              <div class="flex justify-between text-liminary-body">
                 <span>Format</span>
-                <span class="text-slate-200">Apple Disk Image (.dmg)</span>
+                <span class="text-liminary-dark font-medium">Apple Disk Image (.dmg)</span>
               </div>
-              <div class="flex justify-between text-slate-400">
+              <div class="flex justify-between text-liminary-body">
                 <span>Release</span>
-                <span class="text-slate-200">v0.1.0-arm64</span>
+                <span class="text-liminary-dark font-medium">v0.1.0 (arm64)</span>
               </div>
-              <div class="flex justify-between text-slate-400">
+              <div class="flex justify-between text-liminary-body">
                 <span>Payload Size</span>
-                <span class="text-slate-200">170 MB</span>
+                <span class="text-liminary-dark font-medium">170 MB</span>
               </div>
             </div>
           </div>
 
           <div>
             <!-- Direct Download Action Link -->
-            <a href="https://github.com/Daksh-create349/TROVE/releases/download/v0.1.0/Trove-0.1.0-arm64.dmg" class="w-full inline-flex items-center justify-center space-x-2 px-5 py-3 rounded-lg bg-brand-600 hover:bg-brand-500 text-white text-sm font-semibold tracking-wide transition-all shadow-md">
+            <a href="https://github.com/Daksh-create349/TROVE/releases/download/v0.1.0/Trove-0.1.0-arm64.dmg" class="btn-liminary-blue w-full py-3 inline-flex items-center justify-center space-x-2 text-sm shadow-sm">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
               <span>Download Trove-0.1.0-arm64.dmg</span>
             </a>
 
-            <!-- Checksum Copy Snippet -->
-            <div class="mt-4 p-3 rounded-lg bg-surface-elevated border border-surface-border text-[11px] font-mono">
-              <div class="text-slate-400 mb-1 flex items-center justify-between">
+            <!-- Checksum Copy Pill -->
+            <div class="mt-4 p-3 rounded-xl bg-white border border-liminary-border text-[11px] font-mono">
+              <div class="text-liminary-muted mb-1 flex items-center justify-between">
                 <span>SHA-256 CHECKSUM</span>
-                <button onclick="navigator.clipboard.writeText('bf62b0fa0ebb57685c968ee089d4fc3f8db76eb333093a7544d1307c50e57adb'); this.innerText='COPIED!';" class="text-brand-400 hover:text-brand-300">
+                <button onclick="navigator.clipboard.writeText('bf62b0fa0ebb57685c968ee089d4fc3f8db76eb333093a7544d1307c50e57adb'); this.innerText='COPIED!';" class="text-liminary-slateText font-semibold hover:underline">
                   COPY
                 </button>
               </div>
-              <div class="text-slate-300 truncate select-all">
+              <div class="text-liminary-body truncate select-all">
                 bf62b0fa0ebb57685c968ee089d4fc3f8db76eb333093a7544d1307c50e57adb
               </div>
             </div>
@@ -343,107 +376,105 @@
         </div>
 
         <!-- 2. Windows (Coming Soon) -->
-        <div class="glass-card rounded-xl p-8 border-subtle flex flex-col justify-between relative overflow-hidden">
+        <div class="bg-[#faf8f6] border border-liminary-border rounded-3xl p-8 flex flex-col justify-between relative opacity-85">
           <div>
             <!-- Header: Official Windows Logo & Badge -->
             <div class="flex items-center justify-between mb-6">
-              <div class="w-12 h-12 rounded-lg bg-surface-elevated border border-surface-border flex items-center justify-center text-slate-300">
+              <div class="w-12 h-12 rounded-xl bg-white border border-liminary-border flex items-center justify-center text-liminary-dark shadow-sm">
                 <!-- Official Microsoft Windows Vector SVG -->
-                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
                   <path d="M0,0H11.377V11.372H0ZM12.623,0H24V11.372H12.623ZM0,12.623H11.377V24H0Zm12.623,0H24V24H12.623"/>
                 </svg>
               </div>
-              <span class="inline-flex items-center px-2.5 py-1 rounded text-xs font-mono font-medium bg-slate-800 text-slate-400 border border-surface-border">
+              <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-mono font-medium bg-liminary-beigePill text-liminary-beigeText">
                 COMING SOON
               </span>
             </div>
 
             <!-- Title & Architecture Details -->
-            <h3 class="text-xl font-bold text-white mb-2">Windows</h3>
-            <p class="text-xs font-mono text-slate-400 mb-4">
+            <h3 class="font-syne font-bold text-2xl text-liminary-dark mb-1">Windows</h3>
+            <p class="text-xs font-mono text-liminary-muted mb-4">
               Windows 11 / 10 · 64-bit (x64) & ARM64
             </p>
-            <p class="text-sm text-slate-400 leading-relaxed mb-6">
+            <p class="text-sm text-liminary-body leading-relaxed mb-6">
               Native Windows desktop client with system tray integration, Windows Explorer context menu handlers, and DPAPI key management.
             </p>
 
-            <!-- Technical Specification Table -->
-            <div class="space-y-2 py-4 border-y border-surface-border text-xs font-mono mb-6">
-              <div class="flex justify-between text-slate-400">
+            <!-- Specs Table -->
+            <div class="space-y-2 py-4 border-y border-liminary-border text-xs font-mono mb-6">
+              <div class="flex justify-between text-liminary-body">
                 <span>Format</span>
-                <span class="text-slate-200">NSIS Installer (.exe / .msi)</span>
+                <span class="text-liminary-dark font-medium">NSIS Installer (.exe / .msi)</span>
               </div>
-              <div class="flex justify-between text-slate-400">
+              <div class="flex justify-between text-liminary-body">
                 <span>Target</span>
-                <span class="text-slate-200">Win32 / Electron</span>
+                <span class="text-liminary-dark font-medium">Win32 Electron</span>
               </div>
-              <div class="flex justify-between text-slate-400">
-                <span>Availability</span>
-                <span class="text-slate-200">Q1 2027</span>
+              <div class="flex justify-between text-liminary-body">
+                <span>Target Release</span>
+                <span class="text-liminary-dark font-medium">Q1 2027</span>
               </div>
             </div>
           </div>
 
           <div>
-            <!-- Disabled Button (Clean, crisp, no pulse) -->
-            <button disabled class="w-full inline-flex items-center justify-center space-x-2 px-5 py-3 rounded-lg bg-surface-elevated border border-surface-border text-slate-400 text-sm font-medium cursor-not-allowed">
-              <span>Coming Soon for Windows</span>
+            <button disabled class="w-full py-3 rounded-xl bg-[#ede9e1] text-liminary-muted text-sm font-medium cursor-not-allowed">
+              Coming Soon for Windows
             </button>
-            <p class="text-[11px] text-center text-slate-400 mt-3 font-mono">
-              Track progress on <a href="https://github.com/Daksh-create349/TROVE" class="underline hover:text-slate-300">GitHub Releases</a>
+            <p class="text-[11px] text-center text-liminary-muted mt-3 font-mono">
+              Track progress on <a href="https://github.com/Daksh-create349/TROVE" class="underline hover:text-liminary-dark">GitHub Releases</a>
             </p>
           </div>
         </div>
 
         <!-- 3. Linux (Coming Soon) -->
-        <div class="glass-card rounded-xl p-8 border-subtle flex flex-col justify-between relative overflow-hidden">
+        <div class="bg-[#faf8f6] border border-liminary-border rounded-3xl p-8 flex flex-col justify-between relative opacity-85">
           <div>
             <!-- Header: Official Linux Tux Logo & Badge -->
             <div class="flex items-center justify-between mb-6">
-              <div class="w-12 h-12 rounded-lg bg-surface-elevated border border-surface-border flex items-center justify-center text-slate-300">
+              <div class="w-12 h-12 rounded-xl bg-white border border-liminary-border flex items-center justify-center text-liminary-dark shadow-sm">
                 <!-- Official Linux Tux Vector SVG -->
                 <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
                   <path d="M12.504 0c-.155 0-.315.008-.48.021-4.226.333-3.105 4.807-3.17 6.298-.076 1.092-.3 1.953-1.05 3.02-.885 1.051-2.127 2.75-2.716 4.521-.278.832-.41 1.684-.287 2.489a.424.424 0 00-.11.135c-.26.268-.45.6-.663.839-.199.199-.485.267-.797.4-.313.136-.658.269-.864.68-.09.189-.136.394-.132.602 0 .199.027.4.055.536.058.399.116.728.04.97-.249.68-.28 1.145-.106 1.484.174.334.535.47.94.601.81.2 1.91.135 2.774.6.926.466 1.866.67 2.616.47.526-.116.97-.464 1.208-.946.587-.003 1.23-.269 2.26-.334.699-.058 1.574.267 2.577.2.025.134.063.198.114.333l.003.003c.391.778 1.113 1.132 1.884 1.071.771-.06 1.592-.536 2.257-1.306.631-.765 1.683-1.084 2.378-1.503.348-.199.629-.469.649-.853.023-.4-.2-.811-.714-1.376v-.097l-.003-.003c-.17-.2-.25-.535-.338-.926-.085-.401-.182-.786-.492-1.046h-.003c-.059-.054-.123-.067-.188-.135a.357.357 0 00-.19-.064c.431-1.278.264-2.55-.173-3.694-.533-1.41-1.465-2.638-2.175-3.483-.796-1.005-1.576-1.957-1.56-3.368.026-2.152.236-6.133-3.544-6.139zm.529 3.405h.013c.213 0 .396.062.584.198.19.135.33.332.438.533.105.259.158.459.166.724 0-.02.006-.04.006-.06v.105a.086.086 0 01-.004-.021l-.004-.024a1.807 1.807 0 01-.15.706.953.953 0 01-.213.335.71.71 0 00-.088-.042c-.104-.045-.198-.064-.284-.133a1.312 1.312 0 00-.22-.066c.05-.06.146-.133.183-.198.053-.128.082-.264.088-.402v-.02a1.21 1.21 0 00-.061-.4c-.045-.134-.101-.2-.183-.333-.084-.066-.167-.132-.267-.132h-.016c-.093 0-.176.03-.262.132a.8.8 0 00-.205.334 1.18 1.18 0 00-.09.4v.019c.002.089.008.179.02.267-.193-.067-.438-.135-.607-.202a1.635 1.635 0 01-.018-.2v-.02a1.772 1.772 0 01.15-.768c.082-.22.232-.406.43-.533a.985.985 0 01.594-.2zm-2.962.059h.036c.142 0 .27.048.399.135.146.129.264.288.344.465.09.199.14.4.153.667v.004c.007.134.006.2-.002.266v.08c-.03.007-.056.018-.083.024-.152.055-.274.135-.393.2.012-.09.013-.18.003-.267v-.015c-.012-.133-.04-.2-.082-.333a.613.613 0 00-.166-.267.248.248 0 00-.183-.064h-.021c-.071.006-.13.04-.186.132a.552.552 0 00-.12.27.944.944 0 00-.023.33v.015c.012.135.037.2.08.334.046.134.098.2.166.268.01.009.02.018.034.024-.07.057-.117.07-.176.136a.304.304 0 01-.131.068 2.62 2.62 0 01-.275-.402 1.772 1.772 0 01-.155-.667 1.759 1.759 0 01.08-.668 1.43 1.43 0 01.283-.535c.128-.133.26-.2.418-.2zm1.37 1.706c.332 0 .733.065 1.216.399.293.2.523.269 1.052.468h.003c.255.136.405.266.478.399v-.131a.571.571 0 01.016.47c-.123.31-.516.643-1.063.842v.002c-.268.135-.501.333-.775.465-.276.135-.588.292-1.012.267a1.139 1.139 0 01-.448-.067 3.566 3.566 0 01-.322-.198c-.195-.135-.363-.332-.612-.465v-.005h-.005c-.4-.246-.616-.512-.686-.71-.07-.268-.005-.47.193-.6.224-.135.38-.271.483-.336.104-.074.143-.102.176-.131h.002v-.003c.169-.202.436-.47.839-.601.139-.036.294-.065.466-.065zm2.8 2.142c.358 1.417 1.196 3.475 1.735 4.473.286.534.855 1.659 1.102 3.024.156-.005.33.018.513.064.646-1.671-.546-3.467-1.089-3.966-.22-.2-.232-.335-.123-.335.59.534 1.365 1.572 1.646 2.757.13.535.16 1.104.021 1.67.067.028.135.06.205.067 1.032.534 1.413.938 1.23 1.537v-.043c-.06-.003-.12 0-.18 0h-.016c.151-.467-.182-.825-1.065-1.224-.915-.4-1.646-.336-1.77.465-.008.043-.013.066-.018.135-.068.023-.139.053-.209.064-.43.268-.662.669-.793 1.187-.13.533-.17 1.156-.205 1.869v.003c-.02.334-.17.838-.319 1.35-1.5 1.072-3.58 1.538-5.348.334a2.645 2.645 0 00-.402-.533 1.45 1.45 0 00-.275-.333c.182 0 .338-.03.465-.067a.615.615 0 00.314-.334c.108-.267 0-.697-.345-1.163-.345-.467-.931-.995-1.788-1.521-.63-.4-.986-.87-1.15-1.396-.165-.534-.143-1.085-.015-1.645.245-1.07.873-2.11 1.274-2.763.107-.065.037.135-.408.974-.396.751-1.14 2.497-.122 3.854a8.123 8.123 0 01.647-2.876c.564-1.278 1.743-3.504 1.836-5.268.048.036.217.135.289.202.218.133.38.333.59.465.21.201.477.335.876.335.039.003.075.006.11.006.412 0 .73-.134.997-.268.29-.134.52-.334.74-.4h.005c.467-.135.835-.402 1.044-.7zm2.185 8.958c.037.6.343 1.245.882 1.377.588.134 1.434-.333 1.791-.765l.211-.01c.315-.007.577.01.847.268l.003.003c.208.199.305.53.391.876.085.4.154.78.409 1.066.486.527.645.906.636 1.14l.003-.007v.018l-.003-.012c-.015.262-.185.396-.498.595-.63.401-1.746.712-2.457 1.57-.618.737-1.37 1.14-2.036 1.191-.664.053-1.237-.2-1.574-.898l-.005-.003c-.21-.4-.12-1.025.056-1.69.176-.668.428-1.344.463-1.897.037-.714.076-1.335.195-1.814.12-.465.308-.797.641-.984l.045-.022zm-10.814.049h.01c.053 0 .105.005.157.014.376.055.706.333 1.023.752l.91 1.664.003.003c.243.533.754 1.064 1.189 1.637.434.598.77 1.131.729 1.57v.006c-.057.744-.48 1.148-1.125 1.294-.645.135-1.52.002-2.395-.464-.968-.536-2.118-.469-2.857-.602-.369-.066-.61-.2-.723-.4-.11-.2-.113-.602.123-1.23v-.004l.002-.003c.117-.334.03-.752-.027-1.118-.055-.401-.083-.71.043-.94.16-.334.396-.4.69-.533.294-.135.64-.202.915-.47h.002v-.002c.256-.268.445-.601.668-.838.19-.201.38-.336.663-.336zm7.159-9.074c-.435.201-.945.535-1.488.535-.542 0-.97-.267-1.28-.466-.154-.134-.28-.268-.373-.335-.164-.134-.144-.333-.074-.333.109.016.129.134.199.2.096.066.215.2.36.333.292.2.68.467 1.167.467.485 0 1.053-.267 1.398-.466.195-.135.445-.334.648-.467.156-.136.149-.267.279-.267.128.016.034.134-.147.332a8.097 8.097 0 01-.69.468zm-1.082-1.583V5.64c-.006-.02.013-.042.029-.05.074-.043.18-.027.26.004.063 0 .16.067.15.135-.006.049-.085.066-.135.066-.055 0-.092-.043-.141-.068-.052-.018-.146-.008-.163-.065zm-.551 0c-.02.058-.113.049-.166.066-.047.025-.086.068-.14.068-.05 0-.13-.02-.136-.068-.01-.066.088-.133.15-.133.08-.031.184-.047.259-.005.019.009.036.03.03.05v.02h.003z"/>
                 </svg>
               </div>
-              <span class="inline-flex items-center px-2.5 py-1 rounded text-xs font-mono font-medium bg-slate-800 text-slate-400 border border-surface-border">
+              <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-mono font-medium bg-liminary-beigePill text-liminary-beigeText">
                 COMING SOON
               </span>
             </div>
 
             <!-- Title & Architecture Details -->
-            <h3 class="text-xl font-bold text-white mb-2">Linux</h3>
-            <p class="text-xs font-mono text-slate-400 mb-4">
+            <h3 class="font-syne font-bold text-2xl text-liminary-dark mb-1">Linux</h3>
+            <p class="text-xs font-mono text-liminary-muted mb-4">
               Ubuntu, Debian, Fedora, Arch · x86_64 & aarch64
             </p>
-            <p class="text-sm text-slate-400 leading-relaxed mb-6">
-              Standalone AppImage and Debian package. Headless CLI mode, systemd daemon service, and Secret Service API integration.
+            <p class="text-sm text-liminary-body leading-relaxed mb-6">
+              Self-contained AppImage and Debian package with headless CLI mode, systemd daemon service, and Secret Service API integration.
             </p>
 
-            <!-- Technical Specification Table -->
-            <div class="space-y-2 py-4 border-y border-surface-border text-xs font-mono mb-6">
-              <div class="flex justify-between text-slate-400">
+            <!-- Specs Table -->
+            <div class="space-y-2 py-4 border-y border-liminary-border text-xs font-mono mb-6">
+              <div class="flex justify-between text-liminary-body">
                 <span>Format</span>
-                <span class="text-slate-200">AppImage & .deb</span>
+                <span class="text-liminary-dark font-medium">AppImage & .deb</span>
               </div>
-              <div class="flex justify-between text-slate-400">
+              <div class="flex justify-between text-liminary-body">
                 <span>Kernel</span>
-                <span class="text-slate-200">Linux 5.4+</span>
+                <span class="text-liminary-dark font-medium">Linux 5.4+</span>
               </div>
-              <div class="flex justify-between text-slate-400">
-                <span>Availability</span>
-                <span class="text-slate-200">Q1 2027</span>
+              <div class="flex justify-between text-liminary-body">
+                <span>Target Release</span>
+                <span class="text-liminary-dark font-medium">Q1 2027</span>
               </div>
             </div>
           </div>
 
           <div>
-            <!-- Disabled Button (Clean, crisp, no pulse) -->
-            <button disabled class="w-full inline-flex items-center justify-center space-x-2 px-5 py-3 rounded-lg bg-surface-elevated border border-surface-border text-slate-400 text-sm font-medium cursor-not-allowed">
-              <span>Coming Soon for Linux</span>
+            <button disabled class="w-full py-3 rounded-xl bg-[#ede9e1] text-liminary-muted text-sm font-medium cursor-not-allowed">
+              Coming Soon for Linux
             </button>
-            <p class="text-[11px] text-center text-slate-400 mt-3 font-mono">
-              Build from source via <a href="https://github.com/Daksh-create349/TROVE" class="underline hover:text-slate-300">GitHub Instructions</a>
+            <p class="text-[11px] text-center text-liminary-muted mt-3 font-mono">
+              Build from source via <a href="https://github.com/Daksh-create349/TROVE" class="underline hover:text-liminary-dark">GitHub README</a>
             </p>
           </div>
         </div>
@@ -453,291 +484,210 @@
     </div>
   </section>
 
-  <!-- Bento Grid: Engineered Capabilities (Strictly Non-AI-Slop) -->
-  <section id="features" class="py-24 border-t border-surface-border bg-surface-elevated/40">
-    <div class="max-w-7xl mx-auto px-6">
+  <!-- Editorial Section 1: "Your files stay confidential. Period." (Liminary Style) -->
+  <section id="security" class="py-24 px-6 max-w-6xl mx-auto">
+    <div class="space-y-4 max-w-2xl mb-14">
+      <div class="text-xs font-mono uppercase tracking-wider text-liminary-muted">
+        CLIENT-SIDE SECURITY
+      </div>
+      <h2 class="font-syne font-bold text-3xl sm:text-4xl text-liminary-dark leading-tight">
+        Your files stay confidential. Period.
+      </h2>
+      <p class="font-sans text-base text-liminary-body leading-relaxed">
+        You shouldn't have to trust cloud vendors with your files. With client-side AES-256-GCM authenticated encryption, your keys are generated locally on your Mac and never touch Telegram's servers.
+      </p>
+    </div>
+
+    <!-- 2 White Bento Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       
-      <div class="max-w-3xl mb-16">
-        <div class="text-xs font-mono tracking-widest text-brand-400 uppercase mb-2">
-          [ CORE ARCHITECTURE ]
+      <div class="liminary-card p-8">
+        <div class="w-10 h-10 rounded-xl bg-liminary-iceBlue text-liminary-slateText flex items-center justify-center font-mono font-bold text-sm mb-6">
+          256
         </div>
-        <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-white">
-          Engineered for privacy, scale, and performance.
-        </h2>
-        <p class="text-slate-400 text-base mt-3">
-          Trove combines client-side cryptographic primitives with Telegram's resilient data centers to deliver an autonomous cloud experience.
+        <h3 class="font-syne font-bold text-xl text-liminary-dark mb-2">
+          Authenticated Cipher Engine
+        </h3>
+        <p class="text-sm text-liminary-body leading-relaxed mb-4">
+          Galois/Counter Mode guarantees both privacy and message authenticity. Every 20 MB chunk is protected by a unique initialization vector (IV) and a 128-bit authentication tag. Tampered chunks fail before decryption.
+        </p>
+        <div class="text-xs font-mono text-liminary-muted">
+          PRIMITIVE: AES-256-GCM · PBKDF2 DERIVATION
+        </div>
+      </div>
+
+      <div class="liminary-card p-8">
+        <div class="w-10 h-10 rounded-xl bg-liminary-warmPill text-liminary-warmText flex items-center justify-center font-mono font-bold text-sm mb-6">
+          0.0
+        </div>
+        <h3 class="font-syne font-bold text-xl text-liminary-dark mb-2">
+          Zero Telemetry or Intermediaries
+        </h3>
+        <p class="text-sm text-liminary-body leading-relaxed mb-4">
+          Trove opens direct TLS MTProto sockets straight to Telegram's official data centers. There are no proprietary relays, telemetry collectors, tracking analytics, or cloud middle-boxes inspecting your traffic.
+        </p>
+        <div class="text-xs font-mono text-liminary-muted">
+          NETWORK: DIRECT MTPROTO 2.0 OVER TLS
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Editorial Section 2: "Save what matters. Download folder as ZIP." (Liminary Style) -->
+  <section id="features" class="py-24 px-6 bg-white border-y border-liminary-border">
+    <div class="max-w-6xl mx-auto">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        
+        <div>
+          <div class="text-xs font-mono uppercase tracking-wider text-liminary-muted mb-2">
+            FOLDERS & COMPRESSION
+          </div>
+          <h2 class="font-syne font-bold text-3xl sm:text-4xl text-liminary-dark leading-tight">
+            Save what matters.<br>Download folder as ZIP on the fly.
+          </h2>
+          <p class="font-sans text-base text-liminary-body mt-4 leading-relaxed">
+            Organize complex nested directory structures just like local storage. When you need your files back, Trove streams the whole hierarchy into a standard compressed `.zip` archive without writing temporary files to your disk.
+          </p>
+
+          <div class="mt-8 space-y-4">
+            <div class="p-4 rounded-2xl bg-[#faf8f6] border border-liminary-border flex items-start space-x-3.5">
+              <span class="w-2 h-2 rounded-full bg-liminary-blue mt-2"></span>
+              <div>
+                <h4 class="font-syne font-semibold text-sm text-liminary-dark">Smart Project Upload Filter</h4>
+                <p class="text-xs text-liminary-body mt-0.5">Automatically skips <code class="text-[11px] font-mono bg-white px-1 py-0.5 rounded border border-liminary-border">node_modules</code>, <code class="text-[11px] font-mono bg-white px-1 py-0.5 rounded border border-liminary-border">.venv</code>, <code class="text-[11px] font-mono bg-white px-1 py-0.5 rounded border border-liminary-border">.git</code>, and build caches so your cloud vault stays clean.</p>
+              </div>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-[#faf8f6] border border-liminary-border flex items-start space-x-3.5">
+              <span class="w-2 h-2 rounded-full bg-liminary-blue mt-2"></span>
+              <div>
+                <h4 class="font-syne font-semibold text-sm text-liminary-dark">Streaming Memory Pipeline</h4>
+                <p class="text-xs text-liminary-body mt-0.5">Streams archive chunks straight to your download folder. Safely packages multi-gigabyte directories without filling temporary swap space.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Embedded UI Visual -->
+        <div class="space-y-4">
+          <div class="liminary-card overflow-hidden border border-liminary-border p-4 bg-[#faf8f6]">
+            <img src="assets/upload-progress.png" alt="Trove Upload Transfer Progress Dock" class="w-full h-auto rounded-xl shadow-sm">
+          </div>
+
+          <div class="liminary-card overflow-hidden border border-liminary-border p-4 bg-[#faf8f6]">
+            <img src="assets/folder-delete-modal.png" alt="Trove Folder Safety Confirmation Modal" class="w-full h-auto rounded-xl shadow-sm">
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Editorial Section 3: "Built for battery life and silence: < 2% Idle CPU." -->
+  <section class="py-24 px-6 max-w-6xl mx-auto">
+    <div class="max-w-2xl mb-14">
+      <div class="text-xs font-mono uppercase tracking-wider text-liminary-muted mb-2">
+        RESOURCE ARCHITECTURE
+      </div>
+      <h2 class="font-syne font-bold text-3xl sm:text-4xl text-liminary-dark leading-tight">
+        Built for battery life and silence.
+      </h2>
+      <p class="font-sans text-base text-liminary-body mt-3 leading-relaxed">
+        Traditional sync clients constantly spin up CPU threads and drain battery in the background. Trove runs on an event-driven scheduler with zero polling loops.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      
+      <div class="liminary-card p-6">
+        <div class="text-3xl font-syne font-bold text-liminary-dark mb-1">&lt; 2%</div>
+        <div class="text-xs font-mono uppercase text-liminary-muted mb-3">IDLE CPU USAGE</div>
+        <p class="text-xs text-liminary-body leading-relaxed">
+          Event-driven TransferContext interval replaces continuous render-loop state recalculations, keeping Mac laptop fans completely silent.
         </p>
       </div>
 
-      <!-- Bento Grid Layout -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="liminary-card p-6">
+        <div class="text-3xl font-syne font-bold text-liminary-dark mb-1">&lt; 1ms</div>
+        <div class="text-xs font-mono uppercase text-liminary-muted mb-3">METADATA SEARCH</div>
+        <p class="text-xs text-liminary-body leading-relaxed">
+          Embedded SQLite engine operating in Write-Ahead Logging (WAL) mode enables instantaneous directory navigation and search without network lag.
+        </p>
+      </div>
 
-        <!-- Card 1: Zero Knowledge -->
-        <div class="glass-card rounded-xl p-6 border-subtle">
-          <div class="w-10 h-10 rounded-lg bg-surface-elevated border border-surface-border flex items-center justify-center text-brand-400 mb-5">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-          </div>
-          <h3 class="text-lg font-bold text-white mb-2">Zero-Knowledge Cryptography</h3>
-          <p class="text-sm text-slate-400 leading-relaxed mb-4">
-            Files are encrypted locally on your machine using authenticated AES-256-GCM before transmission. Telegram's servers only receive encrypted binary chunks; your plaintext keys never touch the network.
-          </p>
-          <div class="text-xs font-mono text-slate-400">
-            PRIMITIVE: AES-256-GCM + PBKDF2
-          </div>
-        </div>
-
-        <!-- Card 2: 20MB Chunk Engine -->
-        <div class="glass-card rounded-xl p-6 border-subtle">
-          <div class="w-10 h-10 rounded-lg bg-surface-elevated border border-surface-border flex items-center justify-center text-brand-400 mb-5">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-          </div>
-          <h3 class="text-lg font-bold text-white mb-2">Streaming MTProto Chunking</h3>
-          <p class="text-sm text-slate-400 leading-relaxed mb-4">
-            Files of arbitrary size are cleanly sliced into 20 MB parts. Parts are uploaded through parallel streams with per-chunk SHA-256 integrity hashes and recombined automatically during download.
-          </p>
-          <div class="text-xs font-mono text-slate-400">
-            CHUNK LIMIT: 20 MB PER SLICE · RESUMABLE
-          </div>
-        </div>
-
-        <!-- Card 3: ZIP Downloads -->
-        <div class="glass-card rounded-xl p-6 border-subtle">
-          <div class="w-10 h-10 rounded-lg bg-surface-elevated border border-surface-border flex items-center justify-center text-brand-400 mb-5">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-          </div>
-          <h3 class="text-lg font-bold text-white mb-2">On-The-Fly Folder ZIP Archiving</h3>
-          <p class="text-sm text-slate-400 leading-relaxed mb-4">
-            Download nested folder hierarchies as a single compressed ZIP file. Trove streams files directly into the ZIP archive in real time without writing temporary intermediate files to your disk.
-          </p>
-          <div class="text-xs font-mono text-slate-400">
-            STREAMING PIPELINE: ZERO TEMPORARY SPOOLING
-          </div>
-        </div>
-
-        <!-- Card 4: Battery & Efficiency -->
-        <div class="glass-card rounded-xl p-6 border-subtle">
-          <div class="w-10 h-10 rounded-lg bg-surface-elevated border border-surface-border flex items-center justify-center text-emerald-400 mb-5">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-          </div>
-          <h3 class="text-lg font-bold text-white mb-2">Cool & Efficient: &lt; 2% Idle CPU</h3>
-          <p class="text-sm text-slate-400 leading-relaxed mb-4">
-            Constructed with an event-driven scheduler that completely eliminates polling loops and busy-waits. macOS energy monitors remain quiet, leaving CPU cores cool and battery life preserved.
-          </p>
-          <div class="text-xs font-mono text-emerald-400">
-            BENCHMARK: 0.8% IDLE CPU · ZERO BATTERY DRAIN
-          </div>
-        </div>
-
-        <!-- Card 5: Local SQLite Engine -->
-        <div class="glass-card rounded-xl p-6 border-subtle">
-          <div class="w-10 h-10 rounded-lg bg-surface-elevated border border-surface-border flex items-center justify-center text-brand-400 mb-5">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2 1.5 3 3.5 3h9c2 0 3.5-1 3.5-3V7c0-2-1.5-3-3.5-3h-9C5.5 4 4 5 4 7zm0 5c0 2 1.5 3 3.5 3h9c2 0 3.5-1 3.5-3M4 17c0 2 1.5 3 3.5 3h9c2 0 3.5-1 3.5-3"/></svg>
-          </div>
-          <h3 class="text-lg font-bold text-white mb-2">Local SQLite Offline Index</h3>
-          <p class="text-sm text-slate-400 leading-relaxed mb-4">
-            Every folder tree, file size, tag, and chunk location is indexed locally inside an embedded SQLite database running with Write-Ahead Logging (WAL). Directory traversal is instant.
-          </p>
-          <div class="text-xs font-mono text-slate-400">
-            LATENCY: &lt; 1MS METADATA QUERY TIME
-          </div>
-        </div>
-
-        <!-- Card 6: Direct Peer Protocol -->
-        <div class="glass-card rounded-xl p-6 border-subtle">
-          <div class="w-10 h-10 rounded-lg bg-surface-elevated border border-surface-border flex items-center justify-center text-brand-400 mb-5">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
-          </div>
-          <h3 class="text-lg font-bold text-white mb-2">No Intermediary Servers</h3>
-          <p class="text-sm text-slate-400 leading-relaxed mb-4">
-            Trove establishes direct TCP and TLS sessions with Telegram's MTProto datacenters. There are no proprietary relays, telemetry collectors, or tracking endpoints in between.
-          </p>
-          <div class="text-xs font-mono text-slate-400">
-            DIRECT MTPROTO 2.0 PROTOCOL · NO TRACKING
-          </div>
-        </div>
-
+      <div class="liminary-card p-6">
+        <div class="text-3xl font-syne font-bold text-liminary-dark mb-1">20 MB</div>
+        <div class="text-xs font-mono uppercase text-liminary-muted mb-3">DYNAMIC CHUNK STREAM</div>
+        <p class="text-xs text-liminary-body leading-relaxed">
+          Files of any size are segmented into clean 20 MB parts with SHA-256 chunk validation, preventing upload stalls on large media archives.
+        </p>
       </div>
 
     </div>
   </section>
 
-  <!-- Technical Architecture & Specifications Section -->
-  <section id="architecture" class="py-24 border-t border-surface-border bg-surface-base">
-    <div class="max-w-7xl mx-auto px-6">
+  <!-- Technical Specifications Table (Liminary Clean Table Style) -->
+  <section id="specifications" class="py-24 px-6 bg-white border-t border-liminary-border">
+    <div class="max-w-6xl mx-auto">
       
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-        <div>
-          <div class="text-xs font-mono tracking-widest text-brand-400 uppercase mb-2">
-            [ DATA PIPELINE ]
-          </div>
-          <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-white">
-            How Trove streams, encrypts, and indexes your files.
-          </h2>
-          <p class="text-slate-400 text-base mt-4 leading-relaxed">
-            Unlike commercial sync daemons that hold your master keys on third-party servers, Trove functions strictly as an autonomous local agent.
-          </p>
-
-          <div class="mt-8 space-y-6">
-            <div class="flex items-start space-x-4">
-              <span class="flex-shrink-0 w-8 h-8 rounded bg-surface-elevated border border-surface-border font-mono text-xs text-brand-400 flex items-center justify-center font-bold">
-                01
-              </span>
-              <div>
-                <h4 class="text-base font-semibold text-white">Local File Ingestion & Chunking</h4>
-                <p class="text-sm text-slate-400 mt-1">
-                  Files are sliced into dynamic 20 MB parts. SHA-256 checksums are calculated in memory to guarantee bit-level integrity before upload.
-                </p>
-              </div>
-            </div>
-
-            <div class="flex items-start space-x-4">
-              <span class="flex-shrink-0 w-8 h-8 rounded bg-surface-elevated border border-surface-border font-mono text-xs text-brand-400 flex items-center justify-center font-bold">
-                02
-              </span>
-              <div>
-                <h4 class="text-base font-semibold text-white">Client-Side Authenticated Cipher</h4>
-                <p class="text-sm text-slate-400 mt-1">
-                  Each chunk is encrypted with AES-256-GCM. An initialization vector (IV) and authentication tag are prepended to the ciphertext.
-                </p>
-              </div>
-            </div>
-
-            <div class="flex items-start space-x-4">
-              <span class="flex-shrink-0 w-8 h-8 rounded bg-surface-elevated border border-surface-border font-mono text-xs text-brand-400 flex items-center justify-center font-bold">
-                03
-              </span>
-              <div>
-                <h4 class="text-base font-semibold text-white">MTProto Dispatch to Saved Messages</h4>
-                <p class="text-sm text-slate-400 mt-1">
-                  Encrypted payloads are sent via Telegram MTProto 2.0 RPC calls directly to your account's private storage peer.
-                </p>
-              </div>
-            </div>
-
-            <div class="flex items-start space-x-4">
-              <span class="flex-shrink-0 w-8 h-8 rounded bg-surface-elevated border border-surface-border font-mono text-xs text-brand-400 flex items-center justify-center font-bold">
-                04
-              </span>
-              <div>
-                <h4 class="text-base font-semibold text-white">SQLite WAL Catalog Persistence</h4>
-                <p class="text-sm text-slate-400 mt-1">
-                  Message IDs, chunk orders, and folder paths are committed to the local database, enabling offline exploration and instantaneous searches.
-                </p>
-              </div>
-            </div>
-          </div>
+      <div class="max-w-2xl mb-12">
+        <div class="text-xs font-mono uppercase tracking-wider text-liminary-muted mb-2">
+          BENCHMARKS & COMPARISON
         </div>
-
-        <!-- Terminal Quickstart Preview -->
-        <div class="rounded-xl border border-surface-border bg-surface-elevated overflow-hidden font-mono text-xs shadow-xl">
-          <div class="h-9 px-4 bg-surface-panel border-b border-surface-border flex items-center justify-between">
-            <span class="text-slate-400">Terminal Quickstart (macOS)</span>
-            <span class="text-slate-600">zsh</span>
-          </div>
-          <div class="p-6 space-y-4 text-slate-300">
-            <div>
-              <span class="text-slate-400"># 1. Download official v0.1.0 Apple Silicon release</span>
-              <div class="text-brand-400 mt-1 select-all">
-                curl -LO https://github.com/Daksh-create349/TROVE/releases/download/v0.1.0/Trove-0.1.0-arm64.dmg
-              </div>
-            </div>
-
-            <div>
-              <span class="text-slate-400"># 2. Verify release checksum</span>
-              <div class="text-emerald-400 mt-1 select-all">
-                shasum -a 256 Trove-0.1.0-arm64.dmg
-              </div>
-              <div class="text-slate-400 mt-1">
-                # Expected: bf62b0fa0ebb57685c968ee089d4fc3f8db76eb333093a7544d1307c50e57adb
-              </div>
-            </div>
-
-            <div>
-              <span class="text-slate-400"># 3. Mount and copy to Applications</span>
-              <div class="text-slate-200 mt-1 select-all">
-                hdiutil attach Trove-0.1.0-arm64.dmg && cp -R /Volumes/Trove/Trove.app /Applications/
-              </div>
-            </div>
-
-            <div class="pt-4 border-t border-surface-border">
-              <span class="text-slate-400"># Or build from source</span>
-              <div class="text-slate-300 mt-1">
-                git clone https://github.com/Daksh-create349/TROVE.git<br>
-                cd TROVE &amp;&amp; npm install &amp;&amp; npm run build
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- Technical Specifications Table -->
-  <section id="specifications" class="py-24 border-t border-surface-border bg-surface-elevated/30">
-    <div class="max-w-7xl mx-auto px-6">
-      
-      <div class="max-w-3xl mb-12">
-        <div class="text-xs font-mono tracking-widest text-brand-400 uppercase mb-2">
-          [ TECHNICAL SPECIFICATIONS ]
-        </div>
-        <h2 class="text-3xl font-bold tracking-tight text-white">
-          System Comparison & Performance
+        <h2 class="font-syne font-bold text-3xl text-liminary-dark">
+          How Trove compares
         </h2>
       </div>
 
-      <div class="overflow-x-auto rounded-xl border border-surface-border bg-surface-elevated">
+      <div class="overflow-x-auto rounded-2xl border border-liminary-border bg-[#faf8f6]">
         <table class="w-full text-left text-sm">
-          <thead class="bg-surface-panel border-b border-surface-border text-xs font-mono text-slate-300">
+          <thead class="bg-white border-b border-liminary-border text-xs font-mono text-liminary-muted">
             <tr>
-              <th class="py-4 px-6 font-semibold">Specification</th>
-              <th class="py-4 px-6 font-semibold text-brand-400">Trove Desktop</th>
-              <th class="py-4 px-6 font-semibold text-slate-400">Traditional Cloud (Drive/Dropbox)</th>
-              <th class="py-4 px-6 font-semibold text-slate-400">Raw Object Storage (S3/R2)</th>
+              <th class="py-4 px-6 font-semibold">CAPABILITY</th>
+              <th class="py-4 px-6 font-semibold text-liminary-dark">TROVE DESKTOP</th>
+              <th class="py-4 px-6 font-semibold">TRADITIONAL CLOUD (DRIVE/DROPBOX)</th>
+              <th class="py-4 px-6 font-semibold">OBJECT STORAGE (S3/R2)</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-surface-border text-slate-300 font-sans">
+          <tbody class="divide-y divide-liminary-border text-liminary-body text-xs font-sans">
             <tr>
-              <td class="py-4 px-6 font-medium text-white">Pricing / Subscription</td>
-              <td class="py-4 px-6 text-emerald-400 font-mono font-medium">$0 Free & Open Source</td>
-              <td class="py-4 px-6 text-slate-400">$10 – $30 / user / month</td>
-              <td class="py-4 px-6 text-slate-400">$0.015 / GB + API egress fees</td>
+              <td class="py-4 px-6 font-medium text-liminary-dark">Subscription Fee</td>
+              <td class="py-4 px-6 font-mono font-semibold text-liminary-dark">$0 Free &amp; Open Source</td>
+              <td class="py-4 px-6">$10 – $30 / user / month</td>
+              <td class="py-4 px-6">Pay-per-GB + Egress bandwidth</td>
             </tr>
             <tr>
-              <td class="py-4 px-6 font-medium text-white">Storage Capacity</td>
-              <td class="py-4 px-6 text-emerald-400 font-mono font-medium">Unlimited (MTProto backed)</td>
-              <td class="py-4 px-6 text-slate-400">15 GB free tier, then hard cap</td>
-              <td class="py-4 px-6 text-slate-400">Metered per GB</td>
+              <td class="py-4 px-6 font-medium text-liminary-dark">Storage Capacity</td>
+              <td class="py-4 px-6 font-mono font-semibold text-liminary-dark">Unlimited (MTProto backed)</td>
+              <td class="py-4 px-6">15 GB free tier, then capped</td>
+              <td class="py-4 px-6">Metered per GB</td>
             </tr>
             <tr>
-              <td class="py-4 px-6 font-medium text-white">Encryption Keys</td>
-              <td class="py-4 px-6 text-emerald-400 font-mono font-medium">Zero-Knowledge (Client held)</td>
-              <td class="py-4 px-6 text-slate-400">Server-Side (Vendor holds keys)</td>
-              <td class="py-4 px-6 text-slate-400">KMS / Server-Side</td>
+              <td class="py-4 px-6 font-medium text-liminary-dark">Encryption Control</td>
+              <td class="py-4 px-6 font-mono font-semibold text-liminary-dark">Client-Side Zero-Knowledge (AES-256)</td>
+              <td class="py-4 px-6">Server-Side (Vendor holds keys)</td>
+              <td class="py-4 px-6">Server-Side / KMS</td>
             </tr>
             <tr>
-              <td class="py-4 px-6 font-medium text-white">Chunking Pipeline</td>
-              <td class="py-4 px-6 text-slate-200 font-mono">20 MB parallelized slices</td>
-              <td class="py-4 px-6 text-slate-400">Proprietary block sync</td>
-              <td class="py-4 px-6 text-slate-400">Multipart upload API</td>
+              <td class="py-4 px-6 font-medium text-liminary-dark">Folder ZIP Archiving</td>
+              <td class="py-4 px-6 font-mono font-semibold text-liminary-dark">Real-time on-the-fly streaming</td>
+              <td class="py-4 px-6">Slow server zip spooling</td>
+              <td class="py-4 px-6">Manual script / lambda needed</td>
             </tr>
             <tr>
-              <td class="py-4 px-6 font-medium text-white">Folder ZIP Export</td>
-              <td class="py-4 px-6 text-emerald-400 font-mono font-medium">On-the-fly streaming</td>
-              <td class="py-4 px-6 text-slate-400">Server spooling delay</td>
-              <td class="py-4 px-6 text-slate-400">Manual archive script needed</td>
+              <td class="py-4 px-6 font-medium text-liminary-dark">Idle CPU Footprint</td>
+              <td class="py-4 px-6 font-mono font-semibold text-liminary-dark">&lt; 2% (Event-driven scheduler)</td>
+              <td class="py-4 px-6">8% – 25% background polling</td>
+              <td class="py-4 px-6">N/A (SDK only)</td>
             </tr>
             <tr>
-              <td class="py-4 px-6 font-medium text-white">Idle CPU Consumption</td>
-              <td class="py-4 px-6 text-emerald-400 font-mono font-medium">&lt; 2% (Event-driven)</td>
-              <td class="py-4 px-6 text-slate-400">8% – 25% background polling</td>
-              <td class="py-4 px-6 text-slate-400">N/A (SDK only)</td>
-            </tr>
-            <tr>
-              <td class="py-4 px-6 font-medium text-white">Offline Browsing</td>
-              <td class="py-4 px-6 text-slate-200 font-mono">Local SQLite WAL index</td>
-              <td class="py-4 px-6 text-slate-400">Limited cache</td>
-              <td class="py-4 px-6 text-slate-400">No offline index</td>
+              <td class="py-4 px-6 font-medium text-liminary-dark">Offline Indexing</td>
+              <td class="py-4 px-6 font-mono font-semibold text-liminary-dark">Local SQLite WAL cache (&lt;1ms)</td>
+              <td class="py-4 px-6">Limited local cache</td>
+              <td class="py-4 px-6">No offline directory index</td>
             </tr>
           </tbody>
         </table>
@@ -746,68 +696,52 @@
     </div>
   </section>
 
-  <!-- Security & Privacy Audit Section -->
-  <section id="security" class="py-24 border-t border-surface-border bg-surface-base">
-    <div class="max-w-7xl mx-auto px-6">
+  <!-- Editorial Footer (Liminary Style) -->
+  <footer class="py-16 px-6 bg-[#faf8f6] border-t border-liminary-border">
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-start justify-between gap-10">
       
-      <div class="max-w-3xl mb-12">
-        <div class="text-xs font-mono tracking-widest text-brand-400 uppercase mb-2">
-          [ SECURITY & INTEGRITY ]
+      <!-- Brand & Description -->
+      <div class="space-y-3 max-w-sm">
+        <div class="flex items-center space-x-2.5">
+          <img src="assets/logo.png" alt="Trove" class="w-6 h-6 object-contain rounded">
+          <span class="font-syne font-bold text-lg text-liminary-dark">TROVE</span>
         </div>
-        <h2 class="text-3xl font-bold tracking-tight text-white">
-          Cryptographic guarantees without compromise.
-        </h2>
-        <p class="text-slate-400 text-base mt-3">
-          Trove is open source and licensed under the MIT License. You can audit every line of code that handles your session, file chunks, and cipher keys.
+        <p class="text-xs text-liminary-body leading-relaxed">
+          Personal encrypted cloud storage backed by Telegram MTProto. Zero vendor lock-in. Zero monthly bills.
         </p>
+        <div class="text-xs font-mono text-liminary-muted">
+          Licensed under the MIT Open Source License.
+        </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="glass-card rounded-xl p-6 border-subtle">
-          <h4 class="text-base font-bold text-white mb-2">Authenticated Encryption (AES-256-GCM)</h4>
-          <p class="text-sm text-slate-400 leading-relaxed">
-            Galois/Counter Mode guarantees both confidentiality and authentication. Any byte tampering or bit-flipping during transit or storage immediately fails the GCM tag verification, preventing corrupted files from decrypting.
-          </p>
+      <!-- Links Column -->
+      <div class="flex flex-wrap gap-12 text-xs font-mono">
+        <div class="space-y-3">
+          <div class="text-liminary-dark font-semibold">RESOURCES</div>
+          <div class="flex flex-col space-y-2 text-liminary-body">
+            <a href="#downloads" class="hover:text-liminary-dark transition-colors">Downloads</a>
+            <a href="https://github.com/Daksh-create349/TROVE" target="_blank" rel="noopener noreferrer" class="hover:text-liminary-dark transition-colors">GitHub Repository</a>
+            <a href="https://github.com/Daksh-create349/TROVE/releases" target="_blank" rel="noopener noreferrer" class="hover:text-liminary-dark transition-colors">Releases</a>
+            <a href="https://github.com/Daksh-create349/TROVE/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" class="hover:text-liminary-dark transition-colors">MIT License</a>
+          </div>
         </div>
 
-        <div class="glass-card rounded-xl p-6 border-subtle">
-          <h4 class="text-base font-bold text-white mb-2">Direct Official MTProto Session</h4>
-          <p class="text-sm text-slate-400 leading-relaxed">
-            Authentication uses your personal Telegram API credentials (`api_id` and `api_hash`) with phone and two-factor SMS / app verification codes. Session strings are stored encrypted on your local drive and are never sent to external servers.
-          </p>
+        <div class="space-y-3">
+          <div class="text-liminary-dark font-semibold">PLATFORMS</div>
+          <div class="flex flex-col space-y-2 text-liminary-body">
+            <a href="#downloads" class="hover:text-liminary-dark transition-colors">macOS (Apple Silicon)</a>
+            <span class="text-liminary-muted">Windows (Q1 2027)</span>
+            <span class="text-liminary-muted">Linux (Q1 2027)</span>
+          </div>
         </div>
       </div>
 
     </div>
-  </section>
 
-  <!-- Minimalist Technical Footer -->
-  <footer class="border-t border-surface-border bg-surface-elevated py-12 text-xs font-mono text-slate-400">
-    <div class="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-6">
-      
-      <div class="flex items-center space-x-3">
-        <img src="assets/logo.png" alt="Trove" class="w-6 h-6 rounded object-contain">
-        <span class="text-white font-bold tracking-wider font-sans">TROVE</span>
-        <span class="text-slate-400">·</span>
-        <span>Open Source MIT License</span>
-      </div>
-
-      <div class="flex flex-wrap items-center gap-6">
-        <a href="#downloads" class="text-slate-400 hover:text-white transition-colors">Downloads</a>
-        <a href="https://github.com/Daksh-create349/TROVE" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white transition-colors">GitHub Repository</a>
-        <a href="https://github.com/Daksh-create349/TROVE/releases" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white transition-colors">Releases</a>
-        <a href="https://github.com/Daksh-create349/TROVE/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white transition-colors">License</a>
-      </div>
-
-    </div>
-    
-    <div class="max-w-7xl mx-auto px-6 mt-6 pt-6 border-t border-surface-border/50 text-[11px] text-slate-400 flex flex-col sm:flex-row justify-between gap-2">
-      <p>
-        Trove is an independent open source project and is not affiliated with, endorsed by, or sponsored by Telegram FZ-LLC.
-      </p>
-      <p>
-        Built with Electron, Vite, TypeScript &amp; GramJS.
-      </p>
+    <!-- Bottom Disclaimer -->
+    <div class="max-w-6xl mx-auto mt-12 pt-6 border-t border-liminary-border flex flex-col sm:flex-row justify-between text-[11px] text-liminary-muted gap-2">
+      <p>Trove is an autonomous open-source project and is not affiliated with or endorsed by Telegram FZ-LLC.</p>
+      <p>Built with Electron, Vite, TypeScript &amp; GramJS.</p>
     </div>
   </footer>
 
