@@ -266,9 +266,14 @@ TROVE/
 ## Installation and Setup
 
 ### Method 1: Using the Pre-Built macOS Installer (Recommended)
-1. Download `Trove-0.1.0-arm64.dmg` from the releases section or use the installer on your Desktop.
+1. Download **[Trove-0.1.0-arm64.dmg](https://github.com/Daksh-create349/TROVE/releases/download/v0.1.0/Trove-0.1.0-arm64.dmg)** from the [GitHub Releases page](https://github.com/Daksh-create349/TROVE/releases/tag/v0.1.0) or visit the [Trove Website](website/index.html).
 2. Open the `.dmg` file and drag **Trove** into your **Applications** folder.
 3. Open Trove from Applications or Spotlight.
+4. Verify checksum if desired:
+   ```bash
+   shasum -a 256 Trove-0.1.0-arm64.dmg
+   # bf62b0fa0ebb57685c968ee089d4fc3f8db76eb333093a7544d1307c50e57adb
+   ```
 
 ### Method 2: Building from Source
 Ensure you have **Node.js 20+** and **npm** installed on your Mac.
