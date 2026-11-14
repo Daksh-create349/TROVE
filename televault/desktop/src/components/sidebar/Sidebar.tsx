@@ -34,6 +34,8 @@ export function Sidebar() {
     telegramProfile,
     openSettings,
     openSetup,
+    reconnectTelegram,
+    isReconnecting,
     selectedTag,
     setSelectedTag,
   } = useApp();
@@ -53,9 +55,9 @@ export function Sidebar() {
         }
       : null);
 
-  const isConnected =
-    telegramStatus?.state === "connected" ||
-    Boolean(telegramStatus?.sessionStored && activeAccount);
+  const isActuallyConnected = telegramStatus?.state === "connected";
+  const hasSavedSession = Boolean(telegramStatus?.sessionStored && activeAccount);
+  const isMac = typeof window !== "undefined" && window.televault?.platform === "darwin";
 
   const handleCreateFolder = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,8 +77,16 @@ export function Sidebar() {
   return (
     <aside className="flex h-full w-56 flex-col border-r border-slate-200 dark:border-[#19243d] bg-white dark:bg-[#060912] text-slate-700 dark:text-slate-300 select-none transition-colors">
       {/* Top Brand & Library Selector */}
-      <div className="p-3 border-b border-slate-200 dark:border-[#141e38]">
-        <div className="flex items-center gap-2.5 mb-2 px-1">
+      <div
+        className={`px-3 pb-3 border-b border-slate-200 dark:border-[#141e38] app-drag-region ${
+          isMac ? "pt-9" : "pt-3"
+        }`}
+        style={{ WebkitAppRegion: "drag" } as React.CSSProperties}
+      >
+        <div
+          className="flex items-center gap-2.5 mb-2 px-1 app-no-drag"
+          style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
+        >
           <TroveLogo size={28} />
           <div className="flex flex-col">
             <span className="text-xs font-bold tracking-tight text-slate-900 dark:text-white">Trove</span>
@@ -85,7 +95,7 @@ export function Sidebar() {
         </div>
 
         {/* Vault Library Selector Dropdown */}
-        <div className="relative">
+        <div className="relative app-no-drag" style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}>
           <button
             onClick={() => setIsLibraryDropdownOpen((prev) => !prev)}
             className="flex w-full items-center justify-between rounded-lg border border-slate-200 dark:border-[#1a2644] bg-slate-50 dark:bg-[#0c1324] px-2.5 py-1.5 text-2xs font-medium text-slate-700 dark:text-slate-300 hover:border-blue-500/40 hover:bg-slate-100 dark:hover:bg-[#131e36] transition-colors"
@@ -307,27 +317,58 @@ export function Sidebar() {
       <div className="border-t border-slate-200 dark:border-[#161720] p-2.5 space-y-2">
         {/* Telegram Connectivity Pill */}
         <button
-          onClick={openSetup}
+          onClick={() => {
+            if (hasSavedSession && !isActuallyConnected) {
+              void reconnectTelegram();
+            } else {
+              openSetup();
+            }
+          }}
           className="flex w-full items-center justify-between rounded-lg border border-slate-200 dark:border-[#1a1c24] bg-slate-50 dark:bg-[#0c0d12] px-2.5 py-1.5 text-2xs transition-colors hover:border-slate-300 dark:hover:border-[#272a38] cursor-pointer shadow-2xs"
+          title={
+            isActuallyConnected
+              ? "Telegram MTProto Connected (Click to manage)"
+              : isReconnecting
+              ? "Reconnecting to Telegram..."
+              : hasSavedSession
+              ? "Offline - Click to reconnect Telegram session"
+              : "Click to connect Telegram account"
+          }
         >
           <div className="flex items-center gap-2 truncate">
             <span
               className={`h-2 w-2 rounded-full shrink-0 ${
-                isConnected
+                isActuallyConnected
                   ? "bg-emerald-500 dark:bg-emerald-400 shadow-sm shadow-emerald-400/50"
-                  : "bg-amber-500 dark:bg-amber-400 animate-pulse"
+                  : isReconnecting
+                  ? "bg-blue-500 dark:bg-blue-400 animate-ping"
+                  : hasSavedSession
+                  ? "bg-amber-500 dark:bg-amber-400 animate-pulse"
+                  : "bg-slate-400 dark:bg-slate-500"
               }`}
             />
             <span className="truncate text-slate-700 dark:text-slate-300 font-medium">
-              {isConnected
+              {isActuallyConnected
                 ? activeAccount?.username
                   ? `@${activeAccount.username}`
                   : `${activeAccount?.firstName || "Telegram Connected"}`
+                : isReconnecting
+                ? "Connecting..."
+                : hasSavedSession
+                ? activeAccount?.username
+                  ? `@${activeAccount.username}`
+                  : "Reconnect Session"
                 : "Connect Telegram"}
             </span>
           </div>
           <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
-            {isConnected ? "Active" : "Setup"}
+            {isActuallyConnected
+              ? "Active"
+              : isReconnecting
+              ? "Connecting"
+              : hasSavedSession
+              ? "Reconnect"
+              : "Setup"}
           </span>
         </button>
 

@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import type {
@@ -69,6 +70,9 @@ interface AppContextValue {
   refreshFolders: () => Promise<void>;
   refreshStats: () => Promise<void>;
   refreshTelegram: () => Promise<void>;
+  reconnectTelegram: () => Promise<boolean>;
+  isReconnecting: boolean;
+  isOnline: boolean;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -96,6 +100,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const [isLoadingFiles, setIsLoadingFiles] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isReconnecting, setIsReconnecting] = useState(false);
+  const isReconnectingRef = useRef(false);
+  const [isOnline, setIsOnline] = useState<boolean>(() =>
+    typeof navigator !== "undefined" ? navigator.onLine : true
+  );
 
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [previewFile, setPreviewFile] = useState<FileMetadata | null>(null);
@@ -114,6 +123,36 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
+  // Safe guarded reconnect
+  const reconnectTelegram = useCallback(async (): Promise<boolean> => {
+    if (!window.televault?.telegram?.reconnect || isReconnectingRef.current) {
+      return false;
+    }
+    isReconnectingRef.current = true;
+    setIsReconnecting(true);
+    try {
+      const res = await window.televault.telegram.reconnect();
+      if (res?.status) {
+        setTelegramStatus(res.status);
+      }
+      if (res?.reconnected) {
+        try {
+          const profile = await window.televault.telegram.getProfile();
+          if (profile) setTelegramProfile(profile);
+        } catch {
+          // not ready
+        }
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    } finally {
+      isReconnectingRef.current = false;
+      setIsReconnecting(false);
+    }
+  }, []);
+
   // Telegram Status
   const refreshTelegram = useCallback(async () => {
     try {
@@ -127,9 +166,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         } catch {
           // not ready
         }
-        // If session is stored in SQLite but socket is idle/disconnected, auto-reconnect in background
-        if (status.sessionStored && status.state === "disconnected" && window.televault.telegram.reconnect) {
-          window.televault.telegram.reconnect().catch(() => {});
+        // If session is stored in SQLite but socket is idle/disconnected, auto-reconnect in background with guard
+        if (
+          status.sessionStored &&
+          status.state === "disconnected" &&
+          !isReconnectingRef.current
+        ) {
+          void reconnectTelegram();
         }
       } else {
         setTelegramProfile(null);
@@ -137,7 +180,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // Backend may be starting
     }
-  }, []);
+  }, [reconnectTelegram]);
 
   // Storage Stats
   const refreshStats = useCallback(async () => {
@@ -152,18 +195,23 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Folders
+  // Folders - keeps cached state if offline or network error
   const refreshFolders = useCallback(async () => {
     try {
       if (!window.televault) return;
       const list = await window.televault.folders.list();
-      setFolders(list);
-    } catch {
-      // silent
+      if (Array.isArray(list)) {
+        setFolders(list);
+      } else if (Array.isArray((list as any)?.items)) {
+        setFolders((list as any).items);
+      }
+    } catch (err) {
+      console.warn("Could not refresh vault folders:", err);
+      // Retain existing cached folders
     }
   }, []);
 
-  // Files
+  // Files - keeps cached state if offline or network error
   const refreshFiles = useCallback(async () => {
     try {
       if (!window.televault) return;
@@ -173,9 +221,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         search: searchQuery.trim() || undefined,
         limit: 100,
       });
-      setFiles(res.items);
+      if (Array.isArray(res?.items)) {
+        setFiles(res.items);
+      } else if (Array.isArray(res)) {
+        setFiles(res);
+      }
     } catch (err) {
       console.warn("Could not refresh vault files:", err);
+      // Retain existing cached files
     } finally {
       setIsLoadingFiles(false);
     }
@@ -189,6 +242,36 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       refreshFiles(),
     ]);
   }, [refreshTelegram, refreshStats, refreshFolders, refreshFiles]);
+
+  // Network offline / online detection
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      addToast({
+        type: "success",
+        title: "Internet Restored",
+        message: "You are back online. Synchronizing Trove vault...",
+      });
+      reconnectTelegram().catch(() => {});
+      refreshAll().catch(() => {});
+    };
+
+    const handleOffline = () => {
+      setIsOnline(false);
+      addToast({
+        type: "warning",
+        title: "No Internet Connection",
+        message: "Working offline. Your cached files and folders remain safe and accessible.",
+      });
+    };
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, [addToast, reconnectTelegram, refreshAll]);
 
   // Initial load
   useEffect(() => {
@@ -377,6 +460,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     refreshFolders,
     refreshStats,
     refreshTelegram,
+    reconnectTelegram,
+    isReconnecting,
+    isOnline,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

@@ -62,13 +62,14 @@ export function TransferProvider({ children }: { children: React.ReactNode }) {
     try {
       if (!window.televault) return;
       const [upList, downList] = await Promise.all([
-        window.televault.uploads.list({ limit: 30 }),
-        window.televault.downloads.list({ limit: 30 }),
+        window.televault.uploads.list({ limit: 30 }).catch(() => ({ items: [], pagination: { total: 0, limit: 30, offset: 0, hasMore: false } })),
+        window.televault.downloads.list({ limit: 30 }).catch(() => ({ items: [], pagination: { total: 0, limit: 30, offset: 0, hasMore: false } })),
       ]);
-      setUploads(upList.items);
-      setDownloads(downList.items);
+      setUploads(Array.isArray(upList?.items) ? upList.items : Array.isArray(upList) ? upList : []);
+      setDownloads(Array.isArray(downList?.items) ? downList.items : Array.isArray(downList) ? downList : []);
     } catch {
-      // silent
+      setUploads([]);
+      setDownloads([]);
     }
   }, []);
 
@@ -79,10 +80,13 @@ export function TransferProvider({ children }: { children: React.ReactNode }) {
     const poll = async () => {
       try {
         if (!window.televault) return;
-        const activeUploadJobs = uploads.filter(
+        const safeUploads = Array.isArray(uploads) ? uploads : [];
+        const safeDownloads = Array.isArray(downloads) ? downloads : [];
+
+        const activeUploadJobs = safeUploads.filter(
           (u) => u.status === "processing" || u.status === "queued",
         );
-        const activeDownloadJobs = downloads.filter(
+        const activeDownloadJobs = safeDownloads.filter(
           (d) => d.status === "processing" || d.status === "queued",
         );
 
@@ -250,8 +254,10 @@ export function TransferProvider({ children }: { children: React.ReactNode }) {
 
   // Compute normalized active transfer items
   const activeTransfers: ActiveTransferItem[] = [];
+  const safeUploads = Array.isArray(uploads) ? uploads : [];
+  const safeDownloads = Array.isArray(downloads) ? downloads : [];
 
-  for (const up of uploads) {
+  for (const up of safeUploads) {
     const prog = uploadProgressMap[up.id];
     activeTransfers.push({
       id: up.id,
@@ -269,7 +275,7 @@ export function TransferProvider({ children }: { children: React.ReactNode }) {
     });
   }
 
-  for (const down of downloads) {
+  for (const down of safeDownloads) {
     const prog = downloadProgressMap[down.id];
     activeTransfers.push({
       id: down.id,

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { WifiOff } from "lucide-react";
 import { useAuth } from "./context/AuthContext";
 import { useApp } from "./context/AppContext";
 import { Sidebar } from "./components/sidebar/Sidebar";
@@ -17,7 +18,7 @@ import { TroveLogo } from "./components/common/Logo";
 
 export function App() {
   const { isLocked } = useAuth();
-  const { activeView, telegramStatus, refreshAll } = useApp();
+  const { activeView, telegramStatus, refreshAll, isOnline } = useApp();
   const [hasTimedOut, setHasTimedOut] = useState(false);
 
   // Apply saved theme preference on load
@@ -42,6 +43,14 @@ export function App() {
 
   // Single Source of Truth: An account is ready when a Telegram session is stored in SQLite
   const isAccountReady = Boolean(telegramStatus?.sessionStored && telegramStatus?.account);
+
+  // If account is found in SQLite database, mark onboarding finished automatically
+  useEffect(() => {
+    if (isAccountReady && !onboardingFinished) {
+      setOnboardingFinished(true);
+      localStorage.setItem("trove_onboarded", "true");
+    }
+  }, [isAccountReady, onboardingFinished]);
 
   // Show onboarding walkthrough if not finished AND no account is ready in SQLite
   const showOnboarding = !onboardingFinished && !isAccountReady;
@@ -98,6 +107,14 @@ export function App() {
           {activeView === "overview" ? <OverviewView /> : <FileManager />}
         </main>
       </div>
+
+      {/* Floating Offline Notification */}
+      {!isOnline && (
+        <div className="fixed top-3 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-full border border-amber-500/40 bg-amber-950/90 text-amber-200 px-4 py-1.5 text-xs font-semibold shadow-2xl backdrop-blur-md animate-in fade-in slide-in-from-top-2">
+          <WifiOff className="h-3.5 w-3.5 text-amber-400 animate-pulse" />
+          <span>No Internet Connection — Working Offline. Your indexed files remain safe.</span>
+        </div>
+      )}
 
       {/* Modals & Overlays */}
       <FilePreviewModal />

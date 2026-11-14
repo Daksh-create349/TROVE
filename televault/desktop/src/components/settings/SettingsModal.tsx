@@ -27,6 +27,8 @@ export function SettingsModal() {
     startSync,
     isSyncing,
     refreshTelegram,
+    reconnectTelegram,
+    isReconnecting,
     addToast,
   } = useApp();
 
@@ -160,15 +162,14 @@ export function SettingsModal() {
                     }
                   : null);
 
-              const isConnected =
-                telegramStatus?.state === "connected" ||
-                Boolean(telegramStatus?.sessionStored && activeAccount);
+              const isActuallyConnected = telegramStatus?.state === "connected";
+              const hasSavedSession = Boolean(telegramStatus?.sessionStored && activeAccount);
 
               return (
                 <div className="space-y-4">
                   <h3 className="text-sm font-bold text-slate-900 dark:text-white">Telegram Account Integration</h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                    Trove connects directly to your Telegram Saved Messages using MTProto.
+                    Trove connects directly to your Telegram Saved Messages using secure MTProto protocol.
                   </p>
 
                   <div className="rounded-2xl border border-slate-200 dark:border-[#1e202a] bg-slate-50/70 dark:bg-[#12141c] p-4 space-y-3 transition-colors">
@@ -176,13 +177,25 @@ export function SettingsModal() {
                       <span className="text-slate-500 dark:text-slate-400 text-xs">Connection State</span>
                       <span
                         className={`inline-flex items-center gap-1.5 font-semibold text-2xs px-2.5 py-0.5 rounded-full ${
-                          isConnected
+                          isActuallyConnected
                             ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
-                            : "bg-amber-500/15 text-amber-600 dark:text-amber-400"
+                            : isReconnecting
+                            ? "bg-blue-500/15 text-blue-600 dark:text-blue-400"
+                            : hasSavedSession
+                            ? "bg-amber-500/15 text-amber-600 dark:text-amber-400"
+                            : "bg-slate-500/15 text-slate-600 dark:text-slate-400"
                         }`}
                       >
                         <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                        <span className="capitalize">{isConnected ? "Connected" : "Disconnected"}</span>
+                        <span className="capitalize">
+                          {isActuallyConnected
+                            ? "Connected (MTProto Active)"
+                            : isReconnecting
+                            ? "Connecting..."
+                            : hasSavedSession
+                            ? "Offline (Session Stored)"
+                            : "Not Connected"}
+                        </span>
                       </span>
                     </div>
 
@@ -209,8 +222,8 @@ export function SettingsModal() {
                     )}
                   </div>
 
-                  {isConnected ? (
-                    <div className="pt-2">
+                  {isActuallyConnected ? (
+                    <div className="flex flex-wrap items-center gap-2 pt-2">
                       <button
                         onClick={handleDisconnect}
                         disabled={isDisconnecting}
@@ -218,6 +231,67 @@ export function SettingsModal() {
                       >
                         <LogOut className="h-4 w-4" />
                         <span>{isDisconnecting ? "Disconnecting..." : "Disconnect Telegram Account"}</span>
+                      </button>
+
+                      <button
+                        onClick={async () => {
+                          await refreshTelegram();
+                          addToast({
+                            type: "info",
+                            title: "Telegram Status Refreshed",
+                            message: "Checked MTProto session and connection status.",
+                          });
+                        }}
+                        className="flex items-center gap-2 rounded-xl border border-slate-200 dark:border-[#272b3a] bg-white dark:bg-[#141722] px-4 py-2 font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-[#1a1e2c] transition-colors cursor-pointer shadow-xs"
+                      >
+                        <RefreshCw className="h-3.5 w-3.5 text-blue-500" />
+                        <span>Refresh Status</span>
+                      </button>
+                    </div>
+                  ) : hasSavedSession ? (
+                    <div className="flex flex-wrap items-center gap-2 pt-2">
+                      <button
+                        onClick={async () => {
+                          const success = await reconnectTelegram();
+                          if (success) {
+                            addToast({
+                              type: "success",
+                              title: "Reconnected",
+                              message: "Connected to Telegram MTProto session.",
+                            });
+                          } else {
+                            addToast({
+                              type: "error",
+                              title: "Reconnect Failed",
+                              message: "Could not restore connection. Check internet or re-login.",
+                            });
+                          }
+                        }}
+                        disabled={isReconnecting}
+                        className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 font-semibold text-white shadow-md shadow-blue-500/20 hover:bg-blue-500 transition-colors disabled:opacity-60 cursor-pointer"
+                      >
+                        <RefreshCw className={`h-4 w-4 ${isReconnecting ? "animate-spin" : ""}`} />
+                        <span>{isReconnecting ? "Connecting..." : "Reconnect Vault"}</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          closeSettings();
+                          openSetup();
+                        }}
+                        className="flex items-center gap-2 rounded-xl border border-slate-200 dark:border-[#272b3a] bg-white dark:bg-[#141722] px-4 py-2 font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-[#1a1e2c] transition-colors cursor-pointer shadow-xs"
+                      >
+                        <Send className="h-3.5 w-3.5 text-indigo-500" />
+                        <span>Change Account</span>
+                      </button>
+
+                      <button
+                        onClick={handleDisconnect}
+                        disabled={isDisconnecting}
+                        className="flex items-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3.5 py-2 font-medium text-rose-600 dark:text-rose-300 hover:bg-rose-500/20 transition-colors disabled:opacity-50 cursor-pointer shadow-xs"
+                      >
+                        <LogOut className="h-3.5 w-3.5" />
+                        <span>Unlink Session</span>
                       </button>
                     </div>
                   ) : (

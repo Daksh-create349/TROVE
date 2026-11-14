@@ -50,7 +50,7 @@ export interface TelevaultApi {
     getProfile: () => Promise<TelegramProfile>;
     startLogin: (phoneNumber: string, forceSMS?: boolean) => Promise<TelegramLoginStartResult>;
     verifyCode: (code: string) => Promise<TelegramLoginCodeResult>;
-    verifyPassword: (password: string) => Promise<TelegramProfile>;
+    verifyPassword: (password: string) => Promise<TelegramStatus>;
     disconnect: () => Promise<{ disconnected: boolean }>;
     reconnect: () => Promise<{ reconnected: boolean; status: TelegramStatus }>;
     saveCredentials: (apiId: number, apiHash: string) => Promise<{ success: boolean }>;

@@ -1,5 +1,5 @@
 import { promises as fs } from "node:fs";
-import { Api, TelegramClient } from "telegram";
+import { Api, TelegramClient, helpers } from "telegram";
 import { CustomFile } from "telegram/client/uploads";
 import { Logger as GramJsLogger, LogLevel } from "telegram/extensions/Logger";
 import { RPCError } from "telegram/errors";
@@ -111,17 +111,17 @@ export class GramJsTelegramClient implements ManagedTelegramClient {
       options.apiId,
       options.apiHash,
       {
-        connectionRetries: 2,
-        requestRetries: 2,
-        autoReconnect: false,
-        retryDelay: 1_000,
-        timeout: 10,
-        deviceModel: "TeleVault Desktop",
+        connectionRetries: 5,
+        requestRetries: 3,
+        autoReconnect: true,
+        retryDelay: 1_500,
+        timeout: 25,
+        deviceModel: "Trove Cloud Vault",
         systemVersion: process.platform,
         appVersion: APP_VERSION,
         langCode: "en",
         systemLangCode: "en",
-        floodSleepThreshold: 0,
+        floodSleepThreshold: 60,
         securityChecks: true,
         baseLogger: new GramJsLogger(LogLevel.NONE),
       },
@@ -136,19 +136,53 @@ export class GramJsTelegramClient implements ManagedTelegramClient {
     return this.client.connected === true;
   }
 
-  checkAuthorization(): Promise<boolean> {
-    return this.client.checkAuthorization();
+  async ping(): Promise<boolean> {
+    if (!this.isConnected()) {
+      return false;
+    }
+    try {
+      await this.client.invoke(new Api.Ping({ pingId: helpers.returnBigInt(Date.now()) as any }));
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async checkAuthorization(): Promise<boolean> {
+    try {
+      return await this.client.checkAuthorization();
+    } catch (error) {
+      const code = rpcErrorCode(error);
+      if (
+        code === "AUTH_KEY_UNREGISTERED" ||
+        code === "SESSION_REVOKED" ||
+        code === "USER_DEACTIVATED" ||
+        code === "AUTH_KEY_DUPLICATED"
+      ) {
+        return false;
+      }
+      throw error;
+    }
   }
 
   async sendCode(phoneNumber: string, forceSMS = false): Promise<{
     phoneCodeHash: string;
     isCodeViaApp: boolean;
+    timeout?: number;
   }> {
-    return this.client.sendCode(
+    const res = await this.client.sendCode(
       { apiId: this.options.apiId, apiHash: this.options.apiHash },
       phoneNumber,
       forceSMS,
     );
+    return {
+      phoneCodeHash: res.phoneCodeHash,
+      isCodeViaApp: res.isCodeViaApp,
+      timeout:
+        typeof (res as unknown as { timeout?: number }).timeout === "number"
+          ? (res as unknown as { timeout?: number }).timeout
+          : undefined,
+    };
   }
 
   async submitCode(input: {

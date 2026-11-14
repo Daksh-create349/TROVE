@@ -234,6 +234,7 @@ export interface TelegramProfile {
 
 export interface TelegramLoginStartResult {
   isCodeViaApp: boolean;
+  timeout?: number;
 }
 
 export interface TelegramLoginCodeResult {

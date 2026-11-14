@@ -11,6 +11,7 @@ import type {
 } from "@shared/types";
 import type { AppConfig } from "../config/env";
 import type { TelegramAccountRepository } from "../database/repositories/telegramAccountRepository";
+import type { SettingsRepository } from "../database/repositories/settingsRepository";
 import type { TelegramAccountRow } from "../database/rows";
 import type { SecretBox } from "../security/secretBox";
 import {
@@ -131,6 +132,7 @@ export interface TelegramServiceOptions {
   secretBox: SecretBox;
   sessionStore: SecureSessionStore;
   logger: Logger;
+  settings?: SettingsRepository;
   clientFactory?: TelegramClientFactory;
 }
 
@@ -138,7 +140,7 @@ export interface TelegramServiceOptions {
  * Owns the single GramJS client and the in-memory, two-step login flow.
  *
  * Security invariants:
- * - Telegram API credentials come only from the environment.
+ * - Telegram API credentials come from the environment or secure local settings.
  * - Session strings are encrypted before they reach SQLite and local files.
  * - OTP codes and 2FA passwords are held only in local variables for the
  *   duration of a request; they are never persisted or logged.
@@ -151,6 +153,7 @@ export class TelegramService {
   private apiId: number | null;
   private apiHash: string | null;
   private readonly accounts: TelegramAccountRepository;
+  private readonly settings?: SettingsRepository;
   private readonly secretBox: SecretBox;
   private readonly sessionStore: SecureSessionStore;
   private readonly clientFactory: TelegramClientFactory;
@@ -165,6 +168,8 @@ export class TelegramService {
   private lastConnectedAt: string | null = null;
   private initialized = false;
   private reconnectTimer: NodeJS.Timeout | null = null;
+  private pingTimer: NodeJS.Timeout | null = null;
+  private reconnectPromise: Promise<boolean> | null = null;
   private shutdownRequested = false;
 
   constructor(options: TelegramServiceOptions);
@@ -188,6 +193,7 @@ export class TelegramService {
       const opts = optionsOrConfig as TelegramServiceOptions;
       this.config = opts.config;
       this.accounts = opts.accounts;
+      this.settings = opts.settings;
       this.secretBox = opts.secretBox;
       this.sessionStore = opts.sessionStore;
       this.logger = opts.logger.child({ module: "telegram" });
@@ -230,6 +236,21 @@ export class TelegramService {
           });
         });
     }
+
+    // Attempt to restore credentials from local SQLite settings if not in env
+    if (!this.configured && this.settings) {
+      const savedApiId = this.settings.get<number>("telegram_api_id");
+      const savedApiHash = this.settings.get<string>("telegram_api_hash");
+      if (savedApiId && savedApiHash) {
+        this.apiId = Number(savedApiId);
+        this.apiHash = String(savedApiHash);
+        this.configured = true;
+        process.env.TELEGRAM_API_ID = String(savedApiId);
+        process.env.TELEGRAM_API_HASH = String(savedApiHash);
+        this.logger.info({ apiId: savedApiId }, "Telegram credentials restored from SQLite settings");
+      }
+    }
+
     this.state = this.configured ? "disconnected" : "unconfigured";
   }
 
@@ -237,7 +258,9 @@ export class TelegramService {
     const stored = this.accounts.getPrimary();
     let effectiveState = this.state;
 
-    if (
+    if (this.reconnectPromise !== null && effectiveState !== "connected") {
+      effectiveState = "connecting";
+    } else if (
       effectiveState === "connected" &&
       this.client !== null &&
       this.client.isConnected() === false
@@ -269,7 +292,17 @@ export class TelegramService {
     }
     process.env.TELEGRAM_API_ID = String(apiId);
     process.env.TELEGRAM_API_HASH = apiHash;
-    this.logger.info({ apiId }, "Telegram credentials dynamically configured");
+
+    if (this.settings) {
+      try {
+        this.settings.set("telegram_api_id", apiId);
+        this.settings.set("telegram_api_hash", apiHash);
+      } catch (err) {
+        this.logger.warn({ err }, "Could not persist Telegram credentials to settings");
+      }
+    }
+
+    this.logger.info({ apiId }, "Telegram credentials dynamically configured and saved");
 
     const stored = this.accounts.getPrimary();
     if (stored && this.state === "disconnected") {
@@ -280,6 +313,24 @@ export class TelegramService {
     }
 
     return this.getStatus();
+  }
+
+  private startKeepAlive(): void {
+    this.stopKeepAlive();
+    this.pingTimer = setInterval(() => {
+      if (this.state === "connected" && this.client && this.client.isConnected()) {
+        if (typeof this.client.ping === "function") {
+          this.client.ping().catch(() => {});
+        }
+      }
+    }, 30_000);
+  }
+
+  private stopKeepAlive(): void {
+    if (this.pingTimer) {
+      clearInterval(this.pingTimer);
+      this.pingTimer = null;
+    }
   }
 
   async getProfile(): Promise<TelegramProfile | null> {
@@ -496,6 +547,7 @@ export class TelegramService {
         );
       }
 
+      this.startKeepAlive();
       this.logger.info(
         { telegramUserId: this.account.telegramUserId },
         "Telegram session restored",
@@ -505,12 +557,25 @@ export class TelegramService {
         await this.destroyClient(client);
       }
       this.client = null;
-      this.state = "error";
+      const code = rpcErrorCode(error);
+      if (
+        code === "AUTH_KEY_UNREGISTERED" ||
+        code === "SESSION_REVOKED" ||
+        code === "USER_DEACTIVATED"
+      ) {
+        await this.sessionStore.clear();
+        this.accounts.clearAll();
+        this.state = "disconnected";
+        this.lastError = "The stored Telegram session has been revoked. Sign in again.";
+        this.logger.warn({ code }, "Stored Telegram session revoked by Telegram");
+        return;
+      }
+      this.state = "disconnected";
       this.lastError =
         "Telegram could not connect. Check the network and retry.";
       this.logger.warn(
-        { errorCode: rpcErrorCode(error), errorName: (error as Error)?.name },
-        "Telegram session restore failed",
+        { errorCode: code, errorName: (error as Error)?.name },
+        "Telegram session restore failed; session retained in SQLite",
       );
     }
   }
@@ -544,7 +609,7 @@ export class TelegramService {
 
     try {
       await this.connectWithTimeout(client);
-      const { phoneCodeHash, isCodeViaApp } = await client.sendCode(
+      const { phoneCodeHash, isCodeViaApp, timeout } = await client.sendCode(
         phoneNumber,
         forceSMS,
       );
@@ -552,10 +617,10 @@ export class TelegramService {
       this.pending = { client, phoneNumber, phoneCodeHash };
       this.state = "awaiting_code";
       this.logger.info(
-        { isCodeViaApp, forceSMS },
+        { isCodeViaApp, forceSMS, timeout },
         "Telegram login code requested",
       );
-      return { isCodeViaApp };
+      return { isCodeViaApp, timeout };
     } catch (error) {
       await this.destroyClient(client);
       this.state = "disconnected";
@@ -639,6 +704,7 @@ export class TelegramService {
 
   async logout(): Promise<TelegramStatus> {
     this.shutdownRequested = true;
+    this.stopKeepAlive();
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer);
       this.reconnectTimer = null;
@@ -721,6 +787,22 @@ export class TelegramService {
       maxMs?: number;
     } = {},
   ): Promise<boolean> {
+    if (this.reconnectPromise) {
+      return this.reconnectPromise;
+    }
+    this.reconnectPromise = this.performReconnect(options).finally(() => {
+      this.reconnectPromise = null;
+    });
+    return this.reconnectPromise;
+  }
+
+  private async performReconnect(
+    options: {
+      maxAttempts?: number;
+      baseMs?: number;
+      maxMs?: number;
+    } = {},
+  ): Promise<boolean> {
     if (!this.configured) {
       return false;
     }
@@ -743,12 +825,18 @@ export class TelegramService {
       return false;
     }
 
-    const maxAttempts = options.maxAttempts ?? 5;
+    const maxAttempts = options.maxAttempts ?? 3;
     const baseMs = options.baseMs ?? 1_000;
-    const maxMs = options.maxMs ?? 30_000;
+    const maxMs = options.maxMs ?? 10_000;
 
     this.state = "connecting";
     this.lastError = null;
+
+    // Destroy existing client first so we don't hold two concurrent clients with same auth key!
+    if (this.client) {
+      await this.destroyClient(this.client);
+      this.client = null;
+    }
 
     for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
       if (this.shutdownRequested) {
@@ -777,9 +865,6 @@ export class TelegramService {
         const me = await client.getMe();
         const savedPeer = await client.resolveSavedMessages(me.id);
 
-        if (this.client) {
-          await this.destroyClient(this.client);
-        }
         this.client = client;
         this.account = {
           telegramUserId: me.id,
@@ -803,14 +888,29 @@ export class TelegramService {
           );
         }
 
+        this.startKeepAlive();
         this.logger.info("Telegram connection re-established");
         return true;
       } catch (error) {
         if (client) {
           await this.destroyClient(client);
         }
+        const code = rpcErrorCode(error);
+        if (
+          code === "AUTH_KEY_UNREGISTERED" ||
+          code === "SESSION_REVOKED" ||
+          code === "USER_DEACTIVATED"
+        ) {
+          await this.sessionStore.clear();
+          this.accounts.clearAll();
+          this.state = "disconnected";
+          this.lastError = "The stored Telegram session has been revoked. Sign in again.";
+          this.logger.warn({ code }, "Stored Telegram session revoked during reconnect");
+          return false;
+        }
+
         this.logger.warn(
-          { attempt, maxAttempts, errorCode: rpcErrorCode(error) },
+          { attempt, maxAttempts, errorCode: code },
           "Telegram reconnect attempt failed",
         );
 
@@ -826,14 +926,15 @@ export class TelegramService {
       }
     }
 
-    this.state = "error";
-    this.lastError = "Telegram reconnection failed after multiple attempts";
+    this.state = "disconnected";
+    this.lastError = "Telegram reconnection paused; will retry automatically";
     return false;
   }
 
   /** Disconnect without revoking the stored session. */
   async shutdown(): Promise<void> {
     this.shutdownRequested = true;
+    this.stopKeepAlive();
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer);
       this.reconnectTimer = null;
@@ -913,6 +1014,7 @@ export class TelegramService {
     this.state = "connected";
     this.lastError = null;
     this.lastConnectedAt = connectedAt;
+    this.startKeepAlive();
     this.logger.info(
       { telegramUserId: summary.telegramUserId },
       "Telegram account connected",

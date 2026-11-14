@@ -1,9 +1,28 @@
-import { existsSync, readFileSync, writeFileSync, statSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, statSync, readdirSync, copyFileSync, mkdirSync } from "node:fs";
 import { dirname, join, resolve, basename } from "node:path";
 import { fileURLToPath } from "node:url";
+import { execSync } from "node:child_process";
 import { app, BrowserWindow, dialog, ipcMain, shell } from "electron";
 import { BackendManager } from "./backendManager";
 import { ProfileSecurityManager } from "./profileSecurity";
+
+// Ensure app name is consistently "Trove" across dev and production
+app.setName("Trove");
+
+// Inherit full user PATH in macOS GUI app instances (fixes node/nvm resolution)
+function fixPath(): void {
+  if (process.platform !== "darwin") return;
+  try {
+    const stdout = execSync("/bin/zsh -ilc 'echo -n $PATH'", { encoding: "utf8", timeout: 2500 });
+    if (stdout && stdout.length > 5) {
+      process.env.PATH = `${stdout}:${process.env.PATH}`;
+    }
+  } catch {
+    const home = process.env.HOME || "";
+    process.env.PATH = `/usr/local/bin:/opt/homebrew/bin:${home ? `${home}/.nvm/versions/node/v22.23.2/bin:` : ""}${process.env.PATH}`;
+  }
+}
+fixPath();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -15,6 +34,12 @@ const profileSecurity = new ProfileSecurityManager();
 const isDev = process.env.NODE_ENV === "development" || !app.isPackaged;
 
 async function createWindow() {
+  const iconPath = existsSync(join(__dirname, "../build/icon.png"))
+    ? join(__dirname, "../build/icon.png")
+    : existsSync(join(__dirname, "../public/logo.png"))
+    ? join(__dirname, "../public/logo.png")
+    : undefined;
+
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 820,
@@ -23,10 +48,14 @@ async function createWindow() {
     frame: false,
     titleBarStyle: "hidden",
     titleBarOverlay: false,
+    trafficLightPosition: { x: 16, y: 16 },
     backgroundColor: "#0d0e12",
+    icon: iconPath,
     show: false,
     webPreferences: {
-      preload: join(__dirname, "preload.js"),
+      preload: existsSync(join(__dirname, "preload.cjs"))
+        ? join(__dirname, "preload.cjs")
+        : join(__dirname, "preload.js"),
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: false, // needed for typed preload IPC
@@ -57,6 +86,86 @@ if (!gotTheLock) {
   });
 
   app.whenReady().then(async () => {
+    // Set Trove Dock icon on macOS
+    if (process.platform === "darwin" && app.dock) {
+      const dockIconPath = existsSync(join(__dirname, "../build/icon.png"))
+        ? join(__dirname, "../build/icon.png")
+        : existsSync(join(__dirname, "../public/logo.png"))
+        ? join(__dirname, "../public/logo.png")
+        : null;
+      if (dockIconPath) {
+        try {
+          app.dock.setIcon(dockIconPath);
+        } catch {
+          // ignore
+        }
+      }
+    }
+
+    // Ensure persistent data directory and migrate existing project database if needed
+    try {
+      const userDataDir = app.getPath("userData");
+      const targetDataDir = join(userDataDir, "data");
+      if (!existsSync(targetDataDir)) {
+        mkdirSync(targetDataDir, { recursive: true });
+      }
+
+      // Check legacy credentials from trove-desktop
+      const legacyCred = join(dirname(userDataDir), "trove-desktop", "credentials.json");
+      const targetCred = join(userDataDir, "credentials.json");
+      if (existsSync(legacyCred) && !existsSync(targetCred)) {
+        try { copyFileSync(legacyCred, targetCred); } catch {}
+      }
+
+      // Check legacy project data directory
+      const projectDataCandidates = [
+        resolve(__dirname, "../../backend/data"),
+        resolve(__dirname, "../../../backend/data"),
+        resolve(__dirname, "../backend/data"),
+        resolve(process.cwd(), "televault/backend/data"),
+        resolve(process.cwd(), "backend/data"),
+      ];
+
+      const sourceDir = projectDataCandidates.find(
+        (d) => existsSync(join(d, "televault.db"))
+      );
+
+      if (sourceDir && !existsSync(join(targetDataDir, "televault.db"))) {
+        const filesToCopy = [
+          "televault.db",
+          "televault.db-shm",
+          "televault.db-wal",
+          "telegram.session",
+          "master.key",
+          "api-token",
+        ];
+        for (const f of filesToCopy) {
+          const s = join(sourceDir, f);
+          const d = join(targetDataDir, f);
+          if (existsSync(s) && !existsSync(d)) {
+            try { copyFileSync(s, d); } catch {}
+          }
+        }
+      }
+    } catch (err) {
+      console.warn("Data directory initialization warning:", err);
+    }
+
+    // Restore saved Telegram credentials to process environment if available
+    try {
+      const credPath = join(app.getPath("userData"), "credentials.json");
+      if (existsSync(credPath)) {
+        const raw = readFileSync(credPath, "utf8");
+        const parsed = JSON.parse(raw);
+        if (parsed.apiId && parsed.apiHash) {
+          process.env.TELEGRAM_API_ID = String(parsed.apiId);
+          process.env.TELEGRAM_API_HASH = String(parsed.apiHash);
+        }
+      }
+    } catch {
+      // ignore
+    }
+
     setupIpcHandlers();
 
     try {
@@ -241,6 +350,17 @@ function setupIpcHandlers() {
   ipcMain.handle(
     "telegram:save-credentials",
     async (_event, apiId: number, apiHash: string) => {
+      // 1. Persist to Electron userData for permanent local storage
+      let saved = false;
+      try {
+        const credPath = join(app.getPath("userData"), "credentials.json");
+        writeFileSync(credPath, JSON.stringify({ apiId, apiHash }, null, 2), "utf8");
+        saved = true;
+      } catch (err) {
+        console.warn("Failed saving credentials to userData:", err);
+      }
+
+      // 2. Also write to .env for dev workflow if writable
       const backendRoot = backend.getBackendRoot();
       const candidates = [
         backendRoot ? resolve(backendRoot, ".env") : "",
@@ -249,10 +369,8 @@ function setupIpcHandlers() {
         resolve(__dirname, "../../../televault/backend/.env"),
         resolve(process.cwd(), "televault/backend/.env"),
         resolve(process.cwd(), "backend/.env"),
-        "C:\\Users\\Daksh\\OneDrive\\Desktop\\Televault\\televault\\backend\\.env",
       ].filter(Boolean);
 
-      let saved = false;
       for (const p of candidates) {
         try {
           const dir = dirname(p);
@@ -282,7 +400,7 @@ function setupIpcHandlers() {
       process.env.TELEGRAM_API_ID = String(apiId);
       process.env.TELEGRAM_API_HASH = apiHash;
 
-      // Update in-flight running backend via API
+      // 3. Update in-flight running backend via API (which also persists to SQLite settings)
       try {
         const res = await backend.request<{ configured: boolean }>("/api/telegram/config", {
           method: "POST",

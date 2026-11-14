@@ -51,7 +51,7 @@ export function TroveOnboarding({ onComplete }: TroveOnboardingProps) {
   const [step, setStep] = useState<Step>("welcome");
 
   // Step 1: User Identity
-  const [displayName, setDisplayName] = useState("Daksh");
+  const [displayName, setDisplayName] = useState("");
 
   // Step 2: Theme Preference
   const [selectedTheme, setSelectedTheme] = useState<"light" | "dark">(() => {
@@ -183,25 +183,26 @@ export function TroveOnboarding({ onComplete }: TroveOnboardingProps) {
     setIsSavingCreds(true);
     setErrorMessage(null);
     try {
-      if (window.televault?.telegram?.saveCredentials) {
-        const res = await window.televault.telegram.saveCredentials(
-          numId,
-          inputApiHash.trim()
+      if (!window.televault?.telegram?.saveCredentials) {
+        throw new Error(
+          "Trove Desktop window required. Please launch and use the Trove Desktop App window (npm start)."
         );
-        if (res.success) {
-          addToast({
-            type: "success",
-            title: "Credentials Saved",
-            message: "Telegram developer keys stored successfully.",
-          });
-          setEditingCreds(false);
-          await refreshTelegram();
-          setStep("phone");
-        } else {
-          throw new Error("Failed to save credentials.");
-        }
-      } else {
+      }
+      const res = await window.televault.telegram.saveCredentials(
+        numId,
+        inputApiHash.trim()
+      );
+      if (res.success) {
+        addToast({
+          type: "success",
+          title: "Credentials Saved",
+          message: "Telegram developer keys stored successfully.",
+        });
+        setEditingCreds(false);
+        await refreshTelegram();
         setStep("phone");
+      } else {
+        throw new Error("Failed to save credentials.");
       }
     } catch (err) {
       setErrorMessage((err as Error).message || "Could not save credentials.");
@@ -228,15 +229,15 @@ export function TroveOnboarding({ onComplete }: TroveOnboardingProps) {
     setIsLoading(true);
     setErrorMessage(null);
     try {
-      let isViaApp = true;
-      if (window.televault?.telegram?.startLogin) {
-        const res = await window.televault.telegram.startLogin(fullPhone, forceSMS);
-        if (res && typeof res.isCodeViaApp === "boolean") {
-          isViaApp = res.isCodeViaApp;
-        }
+      if (!window.televault?.telegram?.startLogin) {
+        throw new Error(
+          "Trove Desktop window required. Please launch and use the Trove Desktop App window (npm start)."
+        );
       }
+      const res = await window.televault.telegram.startLogin(fullPhone, forceSMS);
+      const isViaApp = typeof res?.isCodeViaApp === "boolean" ? res.isCodeViaApp : true;
       setIsCodeViaApp(isViaApp);
-      setResendCooldown(30);
+      setResendCooldown(res?.timeout || 30);
       addToast({
         type: "info",
         title: isViaApp && !forceSMS ? "Telegram App Code Sent" : "SMS Code Requested",
@@ -268,38 +269,42 @@ export function TroveOnboarding({ onComplete }: TroveOnboardingProps) {
     setIsLoading(true);
     setErrorMessage(null);
     try {
-      if (window.televault?.telegram) {
-        if (needs2FA) {
-          if (!password2FA) {
-            setErrorMessage("Please enter your Telegram cloud password.");
-            setIsLoading(false);
-            return;
-          }
-          const prof = await window.televault.telegram.verifyPassword(password2FA);
+      if (!window.televault?.telegram) {
+        throw new Error(
+          "Trove Desktop window required. Please launch and use the Trove Desktop App window (npm start)."
+        );
+      }
+
+      if (needs2FA) {
+        if (!password2FA) {
+          setErrorMessage("Please enter your Telegram cloud password.");
+          setIsLoading(false);
+          return;
+        }
+        const res = await window.televault.telegram.verifyPassword(password2FA);
+        if (res?.account) {
           setConnectedUser({
-            firstName: prof.firstName,
-            username: prof.username,
-            phone: prof.phone,
-            id: prof.id,
+            firstName: res.account.firstName,
+            username: res.account.username,
+            phone: null,
+            id: res.account.telegramUserId,
           });
-        } else {
-          const res = await window.televault.telegram.verifyCode(otpCode.trim());
-          if (res.requiresPassword) {
-            setNeeds2FA(true);
-            setIsLoading(false);
-            return;
-          }
-          if (res.account) {
-            setConnectedUser({
-              firstName: res.account.firstName,
-              username: res.account.username,
-              phone: null,
-              id: res.account.telegramUserId,
-            });
-          }
         }
       } else {
-        throw new Error("Trove backend is still initializing. Please wait a moment and try again.");
+        const res = await window.televault.telegram.verifyCode(otpCode.trim());
+        if (res.requiresPassword) {
+          setNeeds2FA(true);
+          setIsLoading(false);
+          return;
+        }
+        if (res.account) {
+          setConnectedUser({
+            firstName: res.account.firstName,
+            username: res.account.username,
+            phone: null,
+            id: res.account.telegramUserId,
+          });
+        }
       }
 
       await refreshTelegram();
@@ -362,11 +367,12 @@ export function TroveOnboarding({ onComplete }: TroveOnboardingProps) {
       // 4. Mark completed in localStorage
       localStorage.setItem("trove_onboarded", "true");
 
-      // 5. Fire completion callback synchronously so main screen launches instantly
-      onComplete();
+      // 5. Ensure fresh Telegram state before mounting dashboard
+      await refreshTelegram().catch(() => null);
+      await refreshAll().catch(() => null);
 
-      // 6. Refresh app state in background
-      void refreshAll().catch(() => null);
+      // 6. Fire completion callback to launch dashboard
+      onComplete();
     } catch (err) {
       setErrorMessage((err as Error).message || "Failed to finalize vault setup.");
       setIsLoading(false);

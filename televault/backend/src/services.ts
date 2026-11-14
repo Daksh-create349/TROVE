@@ -77,6 +77,7 @@ export function createServices(input: CreateServicesInput): ServiceContainer {
   const telegramService = new TelegramService({
     config,
     accounts: telegramAccountRepository,
+    settings: settingsRepository,
     secretBox,
     sessionStore,
     logger,

@@ -42,12 +42,12 @@ export function FileManager() {
 
   // Current folder's subfolders
   const currentSubfolders = useMemo(() => {
-    return folders.filter((f) => f.parentId === currentFolderId);
+    return (folders || []).filter((f) => f && f.parentId === currentFolderId);
   }, [folders, currentFolderId]);
 
   // Filtered & sorted files
   const displayFiles = useMemo(() => {
-    let list = [...files];
+    let list = [...(files || [])];
 
     // Filter by view
     if (activeView === "photos") {

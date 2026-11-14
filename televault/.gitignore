@@ -2,6 +2,11 @@
 node_modules/
 backend/node_modules/
 backend/dist/
+desktop/dist/
+desktop/dist-electron/
+desktop/release/
+desktop/build/bin/
+desktop/build/icon.iconset/
 coverage/
 *.tsbuildinfo
 
@@ -11,6 +16,9 @@ coverage/
 !.env.example
 *.session
 *.session-journal
+credentials.json
+api-token
+master.key
 
 # Private application data (database, encrypted Telegram session, API token,
 # master key, temporary uploads and downloads)

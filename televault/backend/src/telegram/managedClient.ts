@@ -68,10 +68,12 @@ export interface TelegramMessageSummary {
 export interface ManagedTelegramClient {
   connect(): Promise<void>;
   isConnected(): boolean;
+  ping?(): Promise<boolean>;
   checkAuthorization(): Promise<boolean>;
   sendCode(phoneNumber: string, forceSMS?: boolean): Promise<{
     phoneCodeHash: string;
     isCodeViaApp: boolean;
+    timeout?: number;
   }>;
   submitCode(input: {
     phoneNumber: string;

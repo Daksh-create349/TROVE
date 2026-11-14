@@ -28,6 +28,8 @@ export function OverviewView() {
     startSync,
     isSyncing,
     openSetup,
+    reconnectTelegram,
+    isReconnecting,
   } = useApp();
 
   const { startUploadsFromPaths, startUploadFolder } = useTransfers();
@@ -43,11 +45,10 @@ export function OverviewView() {
         }
       : null);
 
-  const isConnected =
-    telegramStatus?.state === "connected" ||
-    Boolean(telegramStatus?.sessionStored && activeAccount);
+  const isActuallyConnected = telegramStatus?.state === "connected";
+  const hasSavedSession = Boolean(telegramStatus?.sessionStored && activeAccount);
 
-  const recentFiles = files.slice(0, 8);
+  const recentFiles = (files || []).slice(0, 8);
 
   const handleUploadFiles = async () => {
     if (!window.televault) return;
@@ -83,16 +84,26 @@ export function OverviewView() {
               <div className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300">
                 <span
                   className={`flex h-2 w-2 rounded-full ${
-                    isConnected
+                    isActuallyConnected
                       ? "bg-emerald-500 dark:bg-emerald-400 shadow-sm shadow-emerald-400/50"
-                      : "bg-amber-500 dark:bg-amber-400 animate-pulse"
+                      : isReconnecting
+                      ? "bg-blue-500 dark:bg-blue-400 animate-ping"
+                      : hasSavedSession
+                      ? "bg-amber-500 dark:bg-amber-400 animate-pulse"
+                      : "bg-slate-400 dark:bg-slate-500"
                   }`}
                 />
                 <span className="font-medium">
-                  {isConnected
+                  {isActuallyConnected
                     ? activeAccount?.username
                       ? `@${activeAccount.username}`
                       : `${activeAccount?.firstName || "Telegram Account"}`
+                    : isReconnecting
+                    ? "Connecting to Telegram..."
+                    : hasSavedSession
+                    ? activeAccount?.username
+                      ? `@${activeAccount.username} (Offline)`
+                      : `${activeAccount?.firstName || "Session Saved"} (Offline)`
                     : "Not Connected"}
                 </span>
               </div>
@@ -114,7 +125,7 @@ export function OverviewView() {
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-            {isConnected ? (
+            {isActuallyConnected ? (
               <>
                 <button
                   onClick={handleUploadFiles}
@@ -142,6 +153,24 @@ export function OverviewView() {
                   <span>{isSyncing ? "Syncing..." : "Sync Messages"}</span>
                 </button>
               </>
+            ) : hasSavedSession ? (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => reconnectTelegram()}
+                  disabled={isReconnecting}
+                  className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-semibold text-white shadow-lg shadow-blue-500/30 hover:bg-blue-500 transition-all disabled:opacity-60 cursor-pointer"
+                >
+                  <RefreshCw className={`h-4 w-4 ${isReconnecting ? "animate-spin" : ""}`} />
+                  <span>{isReconnecting ? "Connecting..." : "Reconnect Vault"}</span>
+                </button>
+                <button
+                  onClick={openSetup}
+                  className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 dark:border-[#272b3a] bg-white dark:bg-[#141722] px-3 py-2.5 text-xs font-medium text-slate-700 dark:text-slate-300 hover:border-blue-500/50 hover:bg-slate-50 dark:hover:bg-[#1a1e2c] transition-all shadow-xs cursor-pointer"
+                  title="Configure Telegram account credentials"
+                >
+                  <span>Manage</span>
+                </button>
+              </div>
             ) : (
               <button
                 onClick={openSetup}

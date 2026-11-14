@@ -82,7 +82,7 @@ const televaultApi = {
         body: JSON.stringify({ code }),
       }),
     verifyPassword: (password: string) =>
-      apiRequest<TelegramProfile>("/api/telegram/auth/verify-password", {
+      apiRequest<TelegramStatus>("/api/telegram/auth/verify-password", {
         method: "POST",
         body: JSON.stringify({ password }),
       }),

@@ -1,5 +1,5 @@
 import { spawn, type ChildProcess } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, chmodSync } from "node:fs";
 import { join, resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { app } from "electron";
@@ -80,6 +80,20 @@ export class BackendManager {
 
     // Check potential data directories (both api-token and legacy token)
     const candidates = [
+      (() => {
+        try {
+          return join(app.getPath("userData"), "data", "api-token");
+        } catch {
+          return "";
+        }
+      })(),
+      (() => {
+        try {
+          return join(app.getPath("userData"), "api-token");
+        } catch {
+          return "";
+        }
+      })(),
       root ? resolve(root, "data/api-token") : "",
       root ? resolve(root, "data/token") : "",
       resolve(__dirname, "../../backend/data/api-token"),
@@ -171,29 +185,27 @@ export class BackendManager {
     const distServerPath = join(backendRoot, "dist/backend/src/server.js");
     const isCompiled = existsSync(distServerPath);
 
-    const token = this.apiToken || this.locateApiToken() || "2ZaA5jHpqp05oqouOs9g4UONM5qenG7UweL-YXvhMK6LZpag16G_59HfrzR65dvP";
-    this.apiToken = token;
+    const token = this.apiToken || this.locateApiToken();
+    if (token) {
+      this.apiToken = token;
+    }
+
+    const persistentDataDir = join(app.getPath("userData"), "data");
 
     const env: NodeJS.ProcessEnv = {
       ...process.env,
       HOST: "127.0.0.1",
       PORT: String(this.port),
-      TELEVAULT_API_TOKEN: token,
+      ...(token ? { TELEVAULT_API_TOKEN: token } : {}),
+      DATA_DIR: persistentDataDir,
       NODE_ENV: process.env.NODE_ENV || "production",
     };
+    // CRITICAL: Never run native C++ Node addons (like better-sqlite3) using Electron's runtime
+    delete env.ELECTRON_RUN_AS_NODE;
 
     if (isCompiled) {
-      const nodeCandidates = [
-        "C:\\Program Files\\nodejs\\node.exe",
-        process.platform === "win32" ? "node.exe" : "node",
-      ];
-      let nodeCmd = process.platform === "win32" ? "node.exe" : "node";
-      for (const cand of nodeCandidates) {
-        if (cand.includes(":") && existsSync(cand)) {
-          nodeCmd = cand;
-          break;
-        }
-      }
+      const nodeCmd = this.locateNodeBinary();
+      console.log(`[BackendManager] Spawning backend server using node binary: ${nodeCmd}`);
 
       this.childProcess = spawn(nodeCmd, [distServerPath], {
         cwd: backendRoot,
@@ -232,10 +244,13 @@ export class BackendManager {
         {
           cwd: backendRoot,
           env,
-          stdio: "ignore",
+          stdio: ["ignore", "ignore", "pipe"],
           windowsHide: true,
         },
       );
+      this.childProcess.stderr?.on("data", (d) => {
+        console.warn(`[Backend Dev Err]: ${d}`);
+      });
       this.childProcess.on("error", (err) => {
         console.warn(`[Backend Spawn Error]:`, err);
       });
@@ -254,8 +269,43 @@ export class BackendManager {
     }
   }
 
+  private locateNodeBinary(): string {
+    const home = process.env.HOME || "";
+    const candidates = [
+      join(process.resourcesPath || "", "bin/node"),
+      join(process.resourcesPath || "", "bin", process.platform === "win32" ? "node.exe" : "node"),
+      resolve(__dirname, "../build/bin/node"),
+      resolve(__dirname, "../../build/bin/node"),
+      resolve(__dirname, "../../../build/bin/node"),
+      resolve(process.cwd(), "build/bin/node"),
+      resolve(process.cwd(), "televault/desktop/build/bin/node"),
+      process.env.NODE_BINARY || "",
+      home ? join(home, ".nvm/versions/node/v22.23.2/bin/node") : "",
+      "/opt/homebrew/bin/node",
+      "/usr/local/bin/node",
+      "/usr/bin/node",
+      "C:\\Program Files\\nodejs\\node.exe",
+    ].filter(Boolean);
+
+    for (const cand of candidates) {
+      if (existsSync(cand)) {
+        if (process.platform !== "darwin" && process.platform !== "linux") {
+          return cand;
+        }
+        try {
+          chmodSync(cand, 0o755);
+        } catch {
+          // ignore if read-only filesystem or restricted
+        }
+        return cand;
+      }
+    }
+    return "node";
+  }
+
   private locateBackendRoot(): string | null {
     const candidates = [
+      join(process.resourcesPath || "", "backend"),
       resolve(__dirname, "../../backend"),
       resolve(__dirname, "../../../backend"),
       resolve(__dirname, "../../../televault/backend"),
@@ -263,11 +313,10 @@ export class BackendManager {
       resolve(process.cwd(), "televault/backend"),
       resolve(process.cwd(), "backend"),
       resolve(process.cwd(), "../backend"),
-      join(process.resourcesPath || "", "backend"),
     ];
 
     for (const dir of candidates) {
-      if (existsSync(join(dir, "package.json"))) {
+      if (dir && existsSync(join(dir, "package.json"))) {
         return dir;
       }
     }
