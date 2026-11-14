@@ -3,6 +3,8 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
+  useRef,
   useState,
 } from "react";
 import type {
@@ -29,11 +31,24 @@ export interface ActiveTransferItem {
   error?: string | null;
 }
 
+export interface BatchUploadStats {
+  isActive: boolean;
+  isPaused: boolean;
+  totalFiles: number;
+  completedFiles: number;
+  progressBytes: number;
+  totalBytes: number;
+  percentage: number;
+  currentFilename: string;
+  speedBytesPerSec: number;
+}
+
 interface TransferContextValue {
   uploads: UploadJob[];
   downloads: DownloadJob[];
   activeTransfers: ActiveTransferItem[];
   activeCount: number;
+  batchUploadStats: BatchUploadStats;
   isTransfersOpen: boolean;
   setIsTransfersOpen: (open: boolean) => void;
   toggleTransfers: () => void;
@@ -42,6 +57,9 @@ interface TransferContextValue {
   pauseUpload: (id: string) => Promise<void>;
   resumeUpload: (id: string) => Promise<void>;
   cancelUpload: (id: string) => Promise<void>;
+  pauseAllUploads: () => Promise<void>;
+  resumeAllUploads: () => Promise<void>;
+  cancelAllUploads: () => Promise<void>;
   pauseDownload: (id: string) => Promise<void>;
   resumeDownload: (id: string) => Promise<void>;
   cancelDownload: (id: string) => Promise<void>;
@@ -58,90 +76,128 @@ export function TransferProvider({ children }: { children: React.ReactNode }) {
   const [downloadProgressMap, setDownloadProgressMap] = useState<Record<string, DownloadProgress>>({});
   const [isTransfersOpen, setIsTransfersOpen] = useState(false);
 
+  // Reference to track whether transfers are active without causing re-render loops
+  const hasActiveTransfersRef = useRef(false);
+  const isPollingRef = useRef(false);
+
   const refreshTransfers = useCallback(async () => {
     try {
       if (!window.televault) return;
       const [upList, downList] = await Promise.all([
-        window.televault.uploads.list({ limit: 30 }).catch(() => ({ items: [], pagination: { total: 0, limit: 30, offset: 0, hasMore: false } })),
-        window.televault.downloads.list({ limit: 30 }).catch(() => ({ items: [], pagination: { total: 0, limit: 30, offset: 0, hasMore: false } })),
+        window.televault.uploads.list({ limit: 50 }).catch(() => ({ items: [], pagination: { total: 0, limit: 50, offset: 0, hasMore: false } })),
+        window.televault.downloads.list({ limit: 50 }).catch(() => ({ items: [], pagination: { total: 0, limit: 50, offset: 0, hasMore: false } })),
       ]);
-      setUploads(Array.isArray(upList?.items) ? upList.items : Array.isArray(upList) ? upList : []);
-      setDownloads(Array.isArray(downList?.items) ? downList.items : Array.isArray(downList) ? downList : []);
+      const upItems = Array.isArray(upList?.items) ? upList.items : [];
+      const downItems = Array.isArray(downList?.items) ? downList.items : [];
+
+      setUploads(upItems);
+      setDownloads(downItems);
+
+      const hasActive =
+        upItems.some((u) => u.status === "processing" || u.status === "queued") ||
+        downItems.some((d) => d.status === "processing" || d.status === "queued");
+      hasActiveTransfersRef.current = hasActive;
     } catch {
-      setUploads([]);
-      setDownloads([]);
+      // silent
     }
   }, []);
 
-  // Poll active job progress
+  // Battery-efficient polling loop: polls active progress only when jobs are active
   useEffect(() => {
     let timer: NodeJS.Timeout | null = null;
+    let isCancelled = false;
 
-    const poll = async () => {
+    const tick = async () => {
+      if (isCancelled || isPollingRef.current) return;
+      isPollingRef.current = true;
+
       try {
         if (!window.televault) return;
-        const safeUploads = Array.isArray(uploads) ? uploads : [];
-        const safeDownloads = Array.isArray(downloads) ? downloads : [];
 
-        const activeUploadJobs = safeUploads.filter(
+        // 1. Fetch updated jobs list
+        const [upList, downList] = await Promise.all([
+          window.televault.uploads.list({ limit: 50 }).catch(() => null),
+          window.televault.downloads.list({ limit: 50 }).catch(() => null),
+        ]);
+
+        if (isCancelled) return;
+
+        const upItems: UploadJob[] = Array.isArray(upList?.items) ? upList.items : [];
+        const downItems: DownloadJob[] = Array.isArray(downList?.items) ? downList.items : [];
+
+        setUploads(upItems);
+        setDownloads(downItems);
+
+        const activeUploads = upItems.filter(
           (u) => u.status === "processing" || u.status === "queued",
         );
-        const activeDownloadJobs = safeDownloads.filter(
+        const activeDownloads = downItems.filter(
           (d) => d.status === "processing" || d.status === "queued",
         );
 
-        if (activeUploadJobs.length > 0) {
+        hasActiveTransfersRef.current = activeUploads.length > 0 || activeDownloads.length > 0;
+
+        // 2. Fetch detailed chunk progress for active items
+        if (activeUploads.length > 0) {
           const upProgresses = await Promise.all(
-            activeUploadJobs.map((j) => window.televault.uploads.progress(j.id).catch(() => null)),
+            activeUploads.map((j) => window.televault.uploads.progress(j.id).catch(() => null)),
           );
-          setUploadProgressMap((prev) => {
-            const next = { ...prev };
-            for (const p of upProgresses) {
-              if (p) next[p.jobId] = p;
-            }
-            return next;
-          });
+          if (!isCancelled) {
+            setUploadProgressMap((prev) => {
+              const next = { ...prev };
+              for (const p of upProgresses) {
+                if (p) next[p.jobId] = p;
+              }
+              return next;
+            });
+          }
         }
 
-        if (activeDownloadJobs.length > 0) {
+        if (activeDownloads.length > 0) {
           const downProgresses = await Promise.all(
-            activeDownloadJobs.map((j) => window.televault.downloads.progress(j.id).catch(() => null)),
+            activeDownloads.map((j) => window.televault.downloads.progress(j.id).catch(() => null)),
           );
-          setDownloadProgressMap((prev) => {
-            const next = { ...prev };
-            for (const p of downProgresses) {
-              if (p) next[p.jobId] = p;
-            }
-            return next;
-          });
+          if (!isCancelled) {
+            setDownloadProgressMap((prev) => {
+              const next = { ...prev };
+              for (const p of downProgresses) {
+                if (p) next[p.jobId] = p;
+              }
+              return next;
+            });
+          }
         }
-
-        // Periodically refresh job lists
-        await refreshTransfers();
       } catch {
         // silent
       } finally {
-        timer = setTimeout(poll, 1000);
+        isPollingRef.current = false;
+        if (!isCancelled) {
+          // If transfers are active, poll smoothly every 1200ms; when idle, conserve battery and poll every 8000ms
+          const delay = hasActiveTransfersRef.current ? 1200 : 8000;
+          timer = setTimeout(tick, delay);
+        }
       }
     };
 
-    poll();
+    // Initial check
+    tick();
 
     return () => {
+      isCancelled = true;
       if (timer) clearTimeout(timer);
     };
-  }, [uploads, downloads, refreshTransfers]);
+  }, []); // Run once on mount! Zero infinite loops.
 
   const startUploadsFromPaths = useCallback(
     async (paths: string[]) => {
       if (!paths || paths.length === 0 || !window.televault) return;
       try {
+        hasActiveTransfersRef.current = true;
         addToast({
           type: "info",
-          title: "Starting uploads",
+          title: "Starting upload",
           message: `Queuing ${paths.length} file(s)...`,
         });
-        setIsTransfersOpen(true);
         await window.televault.uploads.createFromPaths(paths, currentFolderId);
         await refreshTransfers();
         await refreshFolders();
@@ -155,7 +211,7 @@ export function TransferProvider({ children }: { children: React.ReactNode }) {
         });
       }
     },
-    [currentFolderId, addToast, refreshTransfers, refreshFiles, refreshStats],
+    [currentFolderId, addToast, refreshTransfers, refreshFolders, refreshFiles, refreshStats],
   );
 
   const startUploadFolder = useCallback(async () => {
@@ -190,6 +246,7 @@ export function TransferProvider({ children }: { children: React.ReactNode }) {
     async (id: string) => {
       try {
         if (!window.televault) return;
+        hasActiveTransfersRef.current = true;
         await window.televault.uploads.resume(id);
         await refreshTransfers();
       } catch (err) {
@@ -206,12 +263,61 @@ export function TransferProvider({ children }: { children: React.ReactNode }) {
         await window.televault.uploads.cancel(id);
         await refreshTransfers();
         await refreshFiles();
+        await refreshStats();
       } catch (err) {
         addToast({ type: "error", title: "Cancel failed", message: (err as Error).message });
       }
     },
-    [refreshTransfers, refreshFiles, addToast],
+    [refreshTransfers, refreshFiles, refreshStats, addToast],
   );
+
+  const pauseAllUploads = useCallback(async () => {
+    try {
+      if (!window.televault) return;
+      const active = uploads.filter((u) => u.status === "processing" || u.status === "queued");
+      for (const u of active) {
+        await window.televault.uploads.pause(u.id).catch(() => {});
+      }
+      await refreshTransfers();
+      addToast({ type: "info", title: "Uploads paused", message: "In-flight uploads paused." });
+    } catch (err) {
+      addToast({ type: "error", title: "Pause failed", message: (err as Error).message });
+    }
+  }, [uploads, refreshTransfers, addToast]);
+
+  const resumeAllUploads = useCallback(async () => {
+    try {
+      if (!window.televault) return;
+      hasActiveTransfersRef.current = true;
+      const paused = uploads.filter((u) => u.status === "paused");
+      for (const u of paused) {
+        await window.televault.uploads.resume(u.id).catch(() => {});
+      }
+      await refreshTransfers();
+      addToast({ type: "info", title: "Uploads resumed", message: "Resumed uploads." });
+    } catch (err) {
+      addToast({ type: "error", title: "Resume failed", message: (err as Error).message });
+    }
+  }, [uploads, refreshTransfers, addToast]);
+
+  const cancelAllUploads = useCallback(async () => {
+    try {
+      if (!window.televault) return;
+      const uncompleted = uploads.filter(
+        (u) => u.status === "processing" || u.status === "queued" || u.status === "paused",
+      );
+      for (const u of uncompleted) {
+        await window.televault.uploads.cancel(u.id).catch(() => {});
+      }
+      hasActiveTransfersRef.current = false;
+      await refreshTransfers();
+      await refreshFiles();
+      await refreshStats();
+      addToast({ type: "info", title: "Uploads cancelled", message: "Cancelled remaining uploads." });
+    } catch (err) {
+      addToast({ type: "error", title: "Cancel failed", message: (err as Error).message });
+    }
+  }, [uploads, refreshTransfers, refreshFiles, refreshStats, addToast]);
 
   const pauseDownload = useCallback(
     async (id: string) => {
@@ -230,6 +336,7 @@ export function TransferProvider({ children }: { children: React.ReactNode }) {
     async (id: string) => {
       try {
         if (!window.televault) return;
+        hasActiveTransfersRef.current = true;
         await window.televault.downloads.resume(id);
         await refreshTransfers();
       } catch (err) {
@@ -253,45 +360,89 @@ export function TransferProvider({ children }: { children: React.ReactNode }) {
   );
 
   // Compute normalized active transfer items
-  const activeTransfers: ActiveTransferItem[] = [];
-  const safeUploads = Array.isArray(uploads) ? uploads : [];
-  const safeDownloads = Array.isArray(downloads) ? downloads : [];
+  const activeTransfers: ActiveTransferItem[] = useMemo(() => {
+    const list: ActiveTransferItem[] = [];
+    const safeUploads = Array.isArray(uploads) ? uploads : [];
+    const safeDownloads = Array.isArray(downloads) ? downloads : [];
 
-  for (const up of safeUploads) {
-    const prog = uploadProgressMap[up.id];
-    activeTransfers.push({
-      id: up.id,
-      type: "upload",
-      fileId: up.fileId,
-      filename: `Upload: ${up.fileId.substring(0, 8)}...`,
-      status: up.status,
-      progressBytes: prog ? prog.progressBytes : up.progressBytes,
-      totalBytes: prog ? prog.totalBytes : up.progressBytes,
-      percentage: prog ? prog.progressPercentage : up.status === "completed" ? 100 : 0,
-      currentSegment: prog ? prog.currentSegmentIndex + 1 : 0,
-      totalSegments: prog ? prog.totalSegments : 1,
-      speedBytesPerSec: 0,
-      error: up.lastError,
-    });
-  }
+    for (const up of safeUploads) {
+      const prog = uploadProgressMap[up.id];
+      list.push({
+        id: up.id,
+        type: "upload",
+        fileId: up.fileId,
+        filename: `Upload: ${up.fileId.substring(0, 8)}...`,
+        status: up.status,
+        progressBytes: prog ? prog.progressBytes : up.progressBytes,
+        totalBytes: prog ? prog.totalBytes : up.progressBytes,
+        percentage: prog ? prog.progressPercentage : up.status === "completed" ? 100 : 0,
+        currentSegment: prog ? prog.currentSegmentIndex + 1 : 0,
+        totalSegments: prog ? prog.totalSegments : 1,
+        speedBytesPerSec: 0,
+        error: up.lastError,
+      });
+    }
 
-  for (const down of safeDownloads) {
-    const prog = downloadProgressMap[down.id];
-    activeTransfers.push({
-      id: down.id,
-      type: "download",
-      fileId: down.fileId,
-      filename: down.targetFilename || `Download: ${down.fileId.substring(0, 8)}...`,
-      status: down.status,
-      progressBytes: prog ? prog.progressBytes : down.progressBytes,
-      totalBytes: prog ? prog.totalBytes : down.progressBytes,
-      percentage: prog ? prog.progressPercentage : down.status === "completed" ? 100 : 0,
-      currentSegment: prog ? prog.currentSegmentIndex + 1 : 0,
-      totalSegments: prog ? prog.totalSegments : 1,
+    for (const down of safeDownloads) {
+      const prog = downloadProgressMap[down.id];
+      list.push({
+        id: down.id,
+        type: "download",
+        fileId: down.fileId,
+        filename: down.targetFilename || `Download: ${down.fileId.substring(0, 8)}...`,
+        status: down.status,
+        progressBytes: prog ? prog.progressBytes : down.progressBytes,
+        totalBytes: prog ? prog.totalBytes : down.progressBytes,
+        percentage: prog ? prog.progressPercentage : down.status === "completed" ? 100 : 0,
+        currentSegment: prog ? prog.currentSegmentIndex + 1 : 0,
+        totalSegments: prog ? prog.totalSegments : 1,
+        speedBytesPerSec: 0,
+        error: down.lastError,
+      });
+    }
+
+    return list;
+  }, [uploads, downloads, uploadProgressMap, downloadProgressMap]);
+
+  // Aggregate Batch Upload Stats
+  const batchUploadStats: BatchUploadStats = useMemo(() => {
+    const activeOrPaused = uploads.filter(
+      (u) => u.status === "processing" || u.status === "queued" || u.status === "paused",
+    );
+    const completed = uploads.filter((u) => u.status === "completed");
+    const isPaused = activeOrPaused.length > 0 && activeOrPaused.every((u) => u.status === "paused");
+    const isActive = activeOrPaused.length > 0;
+
+    let totalBytes = 0;
+    let progressBytes = 0;
+    let currentFilename = "";
+
+    for (const u of activeOrPaused) {
+      const prog = uploadProgressMap[u.id];
+      const tot = prog?.totalBytes || u.progressBytes || 1;
+      const cur = prog?.progressBytes || u.progressBytes || 0;
+      totalBytes += tot;
+      progressBytes += Math.min(cur, tot);
+      if (u.status === "processing" && !currentFilename) {
+        currentFilename = u.fileId ? `File ${u.fileId.substring(0, 8)}...` : "";
+      }
+    }
+
+    const percentage =
+      totalBytes > 0 ? Math.min(100, Math.round((progressBytes / totalBytes) * 100)) : 0;
+
+    return {
+      isActive,
+      isPaused,
+      totalFiles: activeOrPaused.length + completed.length,
+      completedFiles: completed.length,
+      progressBytes,
+      totalBytes,
+      percentage,
+      currentFilename,
       speedBytesPerSec: 0,
-      error: down.lastError,
-    });
-  }
+    };
+  }, [uploads, uploadProgressMap]);
 
   const activeCount =
     uploads.filter((u) => u.status === "processing" || u.status === "queued").length +
@@ -302,6 +453,7 @@ export function TransferProvider({ children }: { children: React.ReactNode }) {
     downloads,
     activeTransfers,
     activeCount,
+    batchUploadStats,
     isTransfersOpen,
     setIsTransfersOpen,
     toggleTransfers: () => setIsTransfersOpen((prev) => !prev),
@@ -310,6 +462,9 @@ export function TransferProvider({ children }: { children: React.ReactNode }) {
     pauseUpload,
     resumeUpload,
     cancelUpload,
+    pauseAllUploads,
+    resumeAllUploads,
+    cancelAllUploads,
     pauseDownload,
     resumeDownload,
     cancelDownload,

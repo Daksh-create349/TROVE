@@ -16,7 +16,7 @@ interface ContextMenuProps {
 }
 
 export function ContextMenu({ state, onClose }: ContextMenuProps) {
-  const { openPreview, downloadFile, deleteFile, navigateToFolder, addToast } = useApp();
+  const { openPreview, downloadFile, deleteFile, deleteFolder, navigateToFolder, addToast } = useApp();
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -67,16 +67,31 @@ export function ContextMenu({ state, onClose }: ContextMenuProps) {
       className="fixed z-50 w-48 rounded-xl border border-[#232634] bg-[#0f1118]/95 p-1 shadow-2xl backdrop-blur-md text-xs text-slate-200 animate-in fade-in zoom-in-95 duration-100"
     >
       {state.folder ? (
-        <button
-          onClick={() => {
-            navigateToFolder(state.folder!.id, state.folder!.name);
-            onClose();
-          }}
-          className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left hover:bg-blue-600 hover:text-white transition-colors"
-        >
-          <FolderOpen className="h-3.5 w-3.5" />
-          <span>Open Folder</span>
-        </button>
+        <>
+          <button
+            onClick={() => {
+              navigateToFolder(state.folder!.id, state.folder!.name);
+              onClose();
+            }}
+            className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left hover:bg-blue-600 hover:text-white transition-colors cursor-pointer"
+          >
+            <FolderOpen className="h-3.5 w-3.5" />
+            <span>Open Folder</span>
+          </button>
+          <div className="my-1 h-px bg-slate-800" />
+          <button
+            onClick={() => {
+              if (window.confirm(`Delete folder "${state.folder!.name}" and all its contents?`)) {
+                deleteFolder(state.folder!.id, state.folder!.name);
+              }
+              onClose();
+            }}
+            className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-rose-400 hover:bg-rose-600 hover:text-white transition-colors cursor-pointer"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            <span>Delete Folder</span>
+          </button>
+        </>
       ) : state.file ? (
         <>
           <button

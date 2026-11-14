@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import type { FileMetadata, Folder } from "@shared/types";
-import { UploadCloud, FolderOpen, ArrowUpDown, Trash2, Download, X, FolderUp } from "lucide-react";
+import { UploadCloud, FolderOpen, ArrowUpDown, Trash2, Download, X, FolderUp, AlertTriangle, Loader2 } from "lucide-react";
 import { useApp } from "../../context/AppContext";
 import { useTransfers } from "../../context/TransferContext";
 import { FolderCard } from "./FolderCard";
@@ -27,13 +27,17 @@ export function FileManager() {
     sortOrder,
     setSortOrder,
     selectedTag,
-    deleteFile,
+    deleteFolder,
+    deleteMultipleFiles,
     downloadFile,
   } = useApp();
 
   const { startUploadsFromPaths, startUploadFolder } = useTransfers();
 
   const [isDraggingOver, setIsDraggingOver] = useState(false);
+  const [folderToDelete, setFolderToDelete] = useState<Folder | null>(null);
+  const [isConfirmingBatchDelete, setIsConfirmingBatchDelete] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [contextMenu, setContextMenu] = useState<ContextMenuState>({
     isOpen: false,
     x: 0,
@@ -164,14 +168,29 @@ export function FileManager() {
   };
 
   // Batch actions on multiple selected files
-  const handleDeleteSelected = useCallback(async () => {
+  const executeBatchDelete = useCallback(async () => {
     const ids = Array.from(selectedFileIds);
     if (ids.length === 0) return;
-    for (const id of ids) {
-      await deleteFile(id);
+    setIsDeleting(true);
+    try {
+      await deleteMultipleFiles(ids);
+      setSelectedFileIds(new Set());
+    } finally {
+      setIsDeleting(false);
+      setIsConfirmingBatchDelete(false);
     }
-    setSelectedFileIds(new Set());
-  }, [selectedFileIds, deleteFile, setSelectedFileIds]);
+  }, [selectedFileIds, deleteMultipleFiles, setSelectedFileIds]);
+
+  const executeFolderDelete = useCallback(async () => {
+    if (!folderToDelete) return;
+    setIsDeleting(true);
+    try {
+      await deleteFolder(folderToDelete.id, folderToDelete.name);
+    } finally {
+      setIsDeleting(false);
+      setFolderToDelete(null);
+    }
+  }, [folderToDelete, deleteFolder]);
 
   const handleDownloadSelected = useCallback(async () => {
     const ids = Array.from(selectedFileIds);
@@ -195,7 +214,7 @@ export function FileManager() {
       } else if (e.key === "Delete") {
         if (selectedFileIds.size > 0) {
           e.preventDefault();
-          handleDeleteSelected();
+          setIsConfirmingBatchDelete(true);
         }
       } else if (e.key === " " && selectedFileIds.size > 0) {
         e.preventDefault();
@@ -209,7 +228,7 @@ export function FileManager() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedFileIds, displayFiles, handleSelectAll, handleDeleteSelected, openPreview, setSelectedFileIds]);
+  }, [selectedFileIds, displayFiles, handleSelectAll, openPreview, setSelectedFileIds]);
 
   const toggleSort = (field: SortField) => {
     if (sortField === field) {
@@ -240,6 +259,17 @@ export function FileManager() {
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4 pb-2 border-b border-slate-200/60 dark:border-[#161720]">
         <div className="flex items-center gap-2.5 text-xs text-slate-500 dark:text-slate-400">
           <span>Items: {displayFiles.length + currentSubfolders.length}</span>
+
+          {displayFiles.length > 0 && (
+            <button
+              type="button"
+              onClick={handleSelectAll}
+              className="px-2 py-0.5 rounded text-2xs font-semibold text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+            >
+              {selectedFileIds.size === displayFiles.length ? "Deselect All" : "Select All"}
+            </button>
+          )}
+
           {selectedFileIds.size > 0 && (
             <div className="flex items-center gap-1.5 animate-in fade-in">
               <span className="rounded bg-blue-600/15 text-blue-600 dark:text-blue-400 font-bold px-2 py-0.5 text-2xs">
@@ -257,10 +287,10 @@ export function FileManager() {
                 <span>Download</span>
               </button>
 
-              {/* Delete Selected */}
+              {/* Delete Selected (Opens Confirmation) */}
               <button
                 type="button"
-                onClick={handleDeleteSelected}
+                onClick={() => setIsConfirmingBatchDelete(true)}
                 className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900 border border-rose-200 dark:border-rose-800 text-2xs font-semibold transition-all cursor-pointer shadow-xs"
                 title="Delete selected files from vault"
               >
@@ -290,7 +320,7 @@ export function FileManager() {
             <button
               key={field}
               onClick={() => toggleSort(field)}
-              className={`capitalize px-2 py-0.5 rounded transition-colors ${
+              className={`capitalize px-2 py-0.5 rounded transition-colors cursor-pointer ${
                 sortField === field
                   ? "bg-[#181a24] text-blue-400 font-medium"
                   : "hover:text-slate-200"
@@ -315,6 +345,7 @@ export function FileManager() {
                 folder={folder}
                 onClick={() => navigateToFolder(folder.id, folder.name)}
                 onContextMenu={(e) => handleFolderContextMenu(folder, e)}
+                onDelete={(f) => setFolderToDelete(f)}
               />
             ))}
           </div>
@@ -395,6 +426,78 @@ export function FileManager() {
 
       {/* Context Menu */}
       <ContextMenu state={contextMenu} onClose={() => setContextMenu({ isOpen: false, x: 0, y: 0 })} />
+
+      {/* Delete Single Folder Confirmation Modal */}
+      {folderToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-150">
+          <div className="w-full max-w-sm rounded-2xl border border-rose-500/30 bg-[#0e121d] p-5 shadow-2xl text-center space-y-3">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-500/10 text-rose-500">
+              <AlertTriangle className="h-6 w-6" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-sm font-bold text-white">Delete Folder</h3>
+              <p className="text-xs text-slate-400">
+                Are you sure you want to delete <span className="font-semibold text-white">"{folderToDelete.name}"</span> and all items inside it from your vault?
+              </p>
+            </div>
+            <div className="flex items-center justify-center gap-2 pt-2">
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={() => setFolderToDelete(null)}
+                className="px-4 py-2 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 hover:text-white text-xs font-semibold transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={executeFolderDelete}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold shadow-md shadow-rose-600/30 transition-all cursor-pointer disabled:opacity-50"
+              >
+                {isDeleting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                <span>Delete Folder</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Batch Delete Selected Files Confirmation Modal */}
+      {isConfirmingBatchDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-150">
+          <div className="w-full max-w-sm rounded-2xl border border-rose-500/30 bg-[#0e121d] p-5 shadow-2xl text-center space-y-3">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-500/10 text-rose-500">
+              <Trash2 className="h-6 w-6" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-sm font-bold text-white">Delete Selected Files</h3>
+              <p className="text-xs text-slate-400">
+                Are you sure you want to permanently delete <span className="font-bold text-white">{selectedFileIds.size}</span> file(s) from your vault and Telegram storage?
+              </p>
+            </div>
+            <div className="flex items-center justify-center gap-2 pt-2">
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={() => setIsConfirmingBatchDelete(false)}
+                className="px-4 py-2 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 hover:text-white text-xs font-semibold transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isDeleting}
+                onClick={executeBatchDelete}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold shadow-md shadow-rose-600/30 transition-all cursor-pointer disabled:opacity-50"
+              >
+                {isDeleting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                <span>Delete {selectedFileIds.size} File(s)</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

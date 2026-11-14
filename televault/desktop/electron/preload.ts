@@ -171,6 +171,10 @@ const televaultApi = {
         method: "POST",
         body: JSON.stringify({ name, parentId: parentId || null }),
       }),
+    delete: (id: string) =>
+      apiRequest<{ deleted: boolean; id: string }>(`/api/folders/${id}`, {
+        method: "DELETE",
+      }),
   },
   uploads: {
     create: (payload: {

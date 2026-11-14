@@ -77,7 +77,14 @@ export class FolderRepository {
   }
 
   delete(id: string): boolean {
-    const result = this.db.prepare("DELETE FROM folders WHERE id = ?").run(id);
+    const subtreeIds = this.listSubtreeIds(id);
+    if (subtreeIds.length === 0) return false;
+
+    const placeholders = subtreeIds.map(() => "?").join(",");
+    // Delete files inside folder subtree (cascades file_parts, upload_jobs)
+    this.db.prepare(`DELETE FROM files WHERE folder_id IN (${placeholders})`).run(...subtreeIds);
+    // Delete folders in subtree
+    const result = this.db.prepare(`DELETE FROM folders WHERE id IN (${placeholders})`).run(...subtreeIds);
     return result.changes > 0;
   }
 

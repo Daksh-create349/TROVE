@@ -62,7 +62,9 @@ interface AppContextValue {
   closeSetup: () => void;
   navigateToFolder: (folderId: string | null, folderName?: string) => void;
   createFolder: (name: string) => Promise<Folder | null>;
+  deleteFolder: (folderId: string, folderName?: string) => Promise<boolean>;
   deleteFile: (fileId: string) => Promise<boolean>;
+  deleteMultipleFiles: (fileIds: string[]) => Promise<number>;
   downloadFile: (fileId: string, targetDirectory?: string) => Promise<void>;
   startSync: () => Promise<void>;
   refreshAll: () => Promise<void>;
@@ -333,6 +335,60 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     [currentFolderId, refreshFolders, addToast],
   );
 
+  const deleteFolder = useCallback(
+    async (folderId: string, folderName?: string): Promise<boolean> => {
+      try {
+        if (!window.televault) return false;
+        await window.televault.folders.delete(folderId);
+        addToast({
+          type: "success",
+          title: "Folder deleted",
+          message: folderName ? `Deleted "${folderName}" and all contents` : "Folder deleted",
+        });
+        if (currentFolderId === folderId) {
+          navigateToFolder(null);
+        }
+        await refreshFolders();
+        await refreshFiles();
+        await refreshStats();
+        return true;
+      } catch (err) {
+        addToast({
+          type: "error",
+          title: "Failed to delete folder",
+          message: (err as Error).message,
+        });
+        return false;
+      }
+    },
+    [currentFolderId, navigateToFolder, refreshFolders, refreshFiles, refreshStats, addToast],
+  );
+
+  const deleteMultipleFiles = useCallback(
+    async (fileIds: string[]): Promise<number> => {
+      if (!window.televault || fileIds.length === 0) return 0;
+      let count = 0;
+      for (const id of fileIds) {
+        try {
+          const res = await window.televault.files.delete(id);
+          if (res?.deleted) count++;
+        } catch {
+          // continue
+        }
+      }
+      addToast({
+        type: "success",
+        title: "Files deleted",
+        message: `Successfully deleted ${count} file(s) from vault`,
+      });
+      setSelectedFileIds(new Set());
+      await refreshFiles();
+      await refreshStats();
+      return count;
+    },
+    [refreshFiles, refreshStats, setSelectedFileIds, addToast],
+  );
+
   const deleteFile = useCallback(
     async (fileId: string): Promise<boolean> => {
       try {
@@ -452,7 +508,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     closeSetup: () => setIsSetupOpen(false),
     navigateToFolder,
     createFolder,
+    deleteFolder,
     deleteFile,
+    deleteMultipleFiles,
     downloadFile,
     startSync,
     refreshAll,

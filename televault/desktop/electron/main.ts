@@ -282,6 +282,21 @@ function setupIpcHandlers() {
   });
 
   // Batch upload multiple file paths and whole directories recursively
+  const IGNORED_NAMES = new Set([
+    ".git",
+    "node_modules",
+    ".DS_Store",
+    "Thumbs.db",
+    "desktop.ini",
+    ".vscode",
+    ".idea",
+    "dist",
+    "dist-electron",
+    "release",
+    ".cache",
+    ".turbo",
+  ]);
+
   ipcMain.handle(
     "uploads:from-paths",
     async (_event, filePaths: string[], folderId?: string | null) => {
@@ -290,9 +305,14 @@ function setupIpcHandlers() {
       async function processPath(p: string, parentFolderId?: string | null) {
         try {
           if (!existsSync(p)) return;
+          const base = basename(p);
+          if (IGNORED_NAMES.has(base) || base.startsWith(".")) {
+            return;
+          }
+
           const stat = statSync(p);
           if (stat.isDirectory()) {
-            const folderName = basename(p);
+            const folderName = base;
             let targetFolderId = parentFolderId;
             const res = await backend.request<{ id: string }>("/api/folders", {
               method: "POST",
@@ -307,6 +327,7 @@ function setupIpcHandlers() {
 
             const entries = readdirSync(p);
             for (const entry of entries) {
+              if (IGNORED_NAMES.has(entry) || entry.startsWith(".")) continue;
               await processPath(join(p, entry), targetFolderId);
             }
           } else if (stat.isFile()) {

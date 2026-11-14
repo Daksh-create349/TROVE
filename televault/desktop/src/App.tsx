@@ -9,6 +9,7 @@ import { OverviewView } from "./components/overview/OverviewView";
 import { FileManager } from "./components/files/FileManager";
 import { FilePreviewModal } from "./components/preview/FilePreviewModal";
 import { TransfersDrawer } from "./components/transfers/TransfersDrawer";
+import { UploadProgressBar } from "./components/transfers/UploadProgressBar";
 import { SetupWizard } from "./components/setup/SetupWizard";
 import { SettingsModal } from "./components/settings/SettingsModal";
 import { UnlockScreen } from "./components/unlock/UnlockScreen";
@@ -118,6 +119,7 @@ export function App() {
 
       {/* Modals & Overlays */}
       <FilePreviewModal />
+      <UploadProgressBar />
       <TransfersDrawer />
       <SetupWizard />
       <SettingsModal />
