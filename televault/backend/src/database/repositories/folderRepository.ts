@@ -101,7 +101,59 @@ export class FolderRepository {
       )
       .all(id) as { id: string }[];
     return rows.map((row) => row.id);
-    }
+  }
+
+  listSubtreeWithPaths(rootId: string): { id: string; name: string; relativePath: string }[] {
+    const rows = this.db
+      .prepare(
+        `WITH RECURSIVE subtree(id, name, parent_id, relative_path) AS (
+           SELECT id, name, parent_id, name AS relative_path
+             FROM folders
+            WHERE id = ?
+           UNION ALL
+           SELECT f.id, f.name, f.parent_id, s.relative_path || '/' || f.name
+             FROM folders f
+             JOIN subtree s ON f.parent_id = s.id
+         )
+         SELECT id, name, relative_path AS relativePath FROM subtree`,
+      )
+      .all(rootId) as { id: string; name: string; relativePath: string }[];
+    return rows;
+  }
+
+  listFilesForSubtree(rootId: string): {
+    id: string;
+    originalFilename: string;
+    totalSize: number;
+    relativePath: string;
+  }[] {
+    const rows = this.db
+      .prepare(
+        `WITH RECURSIVE subtree(id, name, parent_id, relative_path) AS (
+           SELECT id, name, parent_id, name AS relative_path
+             FROM folders
+            WHERE id = ?
+           UNION ALL
+           SELECT f.id, f.name, f.parent_id, s.relative_path || '/' || f.name
+             FROM folders f
+             JOIN subtree s ON f.parent_id = s.id
+         )
+         SELECT fi.id,
+                fi.original_filename AS originalFilename,
+                fi.total_size AS totalSize,
+                s.relative_path || '/' || fi.original_filename AS relativePath
+           FROM subtree s
+           JOIN files fi ON fi.folder_id = s.id
+          WHERE fi.status = 'completed'`,
+      )
+      .all(rootId) as {
+        id: string;
+        originalFilename: string;
+        totalSize: number;
+        relativePath: string;
+      }[];
+    return rows;
+  }
 
   getRow(id: string): FolderRow | null {
     const row = this.db

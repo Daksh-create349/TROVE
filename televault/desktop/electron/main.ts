@@ -1,7 +1,9 @@
-import { existsSync, readFileSync, writeFileSync, statSync, readdirSync, copyFileSync, mkdirSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, statSync, readdirSync, copyFileSync, mkdirSync, createWriteStream } from "node:fs";
 import { dirname, join, resolve, basename } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execSync } from "node:child_process";
+import { pipeline } from "node:stream/promises";
+import { Readable } from "node:stream";
 import { app, BrowserWindow, dialog, ipcMain, shell } from "electron";
 import { BackendManager } from "./backendManager";
 import { ProfileSecurityManager } from "./profileSecurity";
@@ -266,6 +268,44 @@ function setupIpcHandlers() {
     }
     return res.filePaths[0] || null;
   });
+
+  // Download entire folder as ZIP archive
+  ipcMain.handle(
+    "folders:download-zip",
+    async (_event, folderId: string, folderName: string) => {
+      if (!mainWindow) return { canceled: true };
+      const safeName = (folderName || "Folder").replace(/[/\\?%*:|"<>]/g, "_");
+      const res = await dialog.showSaveDialog(mainWindow, {
+        title: `Save "${folderName}" as ZIP`,
+        defaultPath: `${safeName}.zip`,
+        filters: [{ name: "ZIP Archive", extensions: ["zip"] }],
+      });
+
+      if (res.canceled || !res.filePath) {
+        return { canceled: true };
+      }
+
+      const targetPath = res.filePath;
+      const info = backend.getInfo();
+      const url = `${info.url}/api/folders/${folderId}/download-zip?token=${encodeURIComponent(info.apiToken)}`;
+
+      const response = await fetch(url);
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => "");
+        throw new Error(
+          `Failed to download folder archive (${response.status}): ${errorText || response.statusText}`,
+        );
+      }
+
+      if (!response.body) {
+        throw new Error("No response body received from server");
+      }
+
+      const fileStream = createWriteStream(targetPath);
+      await pipeline(Readable.fromWeb(response.body as any), fileStream);
+      return { canceled: false, savedPath: targetPath };
+    },
+  );
 
   // Backend info
   ipcMain.handle("backend:get-info", () => {

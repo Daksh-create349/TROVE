@@ -70,7 +70,10 @@ export function createApp(input: CreateAppInput): Express {
       services.telegramService,
     ),
   );
-  app.use("/api/folders", createFoldersRouter(services.folderService));
+  app.use(
+    "/api/folders",
+    createFoldersRouter(services.folderService, services.folderZipService),
+  );
   app.use(
     "/api/storage",
     createStorageRouter(services.storageService, services.storageSyncService),

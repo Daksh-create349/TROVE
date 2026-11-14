@@ -14,6 +14,7 @@ import { DownloadManager } from "./downloads/downloadManager";
 import { DownloadService } from "./downloads/downloadService";
 import { FileStreamer } from "./downloads/fileStreamer";
 import { FolderService } from "./folders/folderService";
+import { FolderZipService } from "./folders/folderZipService";
 import { ProfileService } from "./profiles/profileService";
 import type { SecretBox } from "./security/secretBox";
 import {
@@ -31,6 +32,7 @@ import { UploadService } from "./uploads/uploadService";
 export interface ServiceContainer {
   profileService: ProfileService;
   folderService: FolderService;
+  folderZipService: FolderZipService;
   fileService: FileService;
   uploadService: UploadService;
   uploadManager: UploadManager;
@@ -112,6 +114,15 @@ export function createServices(input: CreateServicesInput): ServiceContainer {
     logger,
   });
 
+  const folderZipService = new FolderZipService({
+    folderRepository,
+    fileRepository,
+    filePartRepository,
+    telegramService,
+    dataDir: config.dataDir,
+    logger,
+  });
+
   const storageSyncService = new StorageSyncService({
     telegramService,
     fileRepository,
@@ -122,6 +133,7 @@ export function createServices(input: CreateServicesInput): ServiceContainer {
   return {
     profileService: new ProfileService(profileRepository),
     folderService: new FolderService(folderRepository),
+    folderZipService,
     fileService: new FileService(
       database,
       fileRepository,

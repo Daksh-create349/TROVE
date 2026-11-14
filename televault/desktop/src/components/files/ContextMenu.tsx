@@ -6,6 +6,7 @@ import {
   Trash2,
   FileText,
   FolderOpen,
+  FolderDown,
 } from "lucide-react";
 import type { ContextMenuState } from "../../types";
 import { useApp } from "../../context/AppContext";
@@ -16,7 +17,7 @@ interface ContextMenuProps {
 }
 
 export function ContextMenu({ state, onClose }: ContextMenuProps) {
-  const { openPreview, downloadFile, deleteFile, deleteFolder, navigateToFolder, addToast } = useApp();
+  const { openPreview, downloadFile, deleteFile, deleteFolder, downloadFolderAsZip, navigateToFolder, addToast } = useApp();
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -77,6 +78,16 @@ export function ContextMenu({ state, onClose }: ContextMenuProps) {
           >
             <FolderOpen className="h-3.5 w-3.5" />
             <span>Open Folder</span>
+          </button>
+          <button
+            onClick={() => {
+              downloadFolderAsZip(state.folder!.id, state.folder!.name);
+              onClose();
+            }}
+            className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left hover:bg-blue-600 hover:text-white transition-colors cursor-pointer"
+          >
+            <FolderDown className="h-3.5 w-3.5 text-sky-400" />
+            <span>Download as ZIP</span>
           </button>
           <div className="my-1 h-px bg-slate-800" />
           <button

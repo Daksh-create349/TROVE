@@ -175,6 +175,11 @@ const televaultApi = {
       apiRequest<{ deleted: boolean; id: string }>(`/api/folders/${id}`, {
         method: "DELETE",
       }),
+    downloadZip: (folderId: string, folderName: string) =>
+      ipcRenderer.invoke("folders:download-zip", folderId, folderName) as Promise<{
+        canceled: boolean;
+        savedPath?: string;
+      }>,
   },
   uploads: {
     create: (payload: {

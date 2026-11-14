@@ -63,6 +63,7 @@ interface AppContextValue {
   navigateToFolder: (folderId: string | null, folderName?: string) => void;
   createFolder: (name: string) => Promise<Folder | null>;
   deleteFolder: (folderId: string, folderName?: string) => Promise<boolean>;
+  downloadFolderAsZip: (folderId: string, folderName?: string) => Promise<void>;
   deleteFile: (fileId: string) => Promise<boolean>;
   deleteMultipleFiles: (fileIds: string[]) => Promise<number>;
   downloadFile: (fileId: string, targetDirectory?: string) => Promise<void>;
@@ -364,6 +365,38 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     [currentFolderId, navigateToFolder, refreshFolders, refreshFiles, refreshStats, addToast],
   );
 
+  const downloadFolderAsZip = useCallback(
+    async (folderId: string, folderName?: string) => {
+      try {
+        if (!window.televault) return;
+        const name = folderName || "Folder";
+        addToast({
+          type: "info",
+          title: "Preparing ZIP download",
+          message: `Packaging "${name}" as ZIP...`,
+        });
+
+        const res = await window.televault.folders.downloadZip(folderId, name);
+        if (res?.canceled) {
+          return;
+        }
+
+        addToast({
+          type: "success",
+          title: "ZIP downloaded",
+          message: `Saved "${name}.zip" successfully`,
+        });
+      } catch (err) {
+        addToast({
+          type: "error",
+          title: "ZIP download failed",
+          message: (err as Error).message,
+        });
+      }
+    },
+    [addToast],
+  );
+
   const deleteMultipleFiles = useCallback(
     async (fileIds: string[]): Promise<number> => {
       if (!window.televault || fileIds.length === 0) return 0;
@@ -509,6 +542,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     navigateToFolder,
     createFolder,
     deleteFolder,
+    downloadFolderAsZip,
     deleteFile,
     deleteMultipleFiles,
     downloadFile,

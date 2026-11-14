@@ -66,6 +66,9 @@ async function main(): Promise<void> {
     void services.fileStreamer.initialize().catch((error: unknown) => {
       logger.warn({ err: error }, "File streamer initialization failed");
     });
+    void services.folderZipService.initialize().catch((error: unknown) => {
+      logger.warn({ err: error }, "Folder zip service initialization failed");
+    });
   });
 
   server.on("error", (error) => {

@@ -78,6 +78,7 @@ export interface TelevaultApi {
     list: () => Promise<Folder[]>;
     create: (name: string, parentId?: string | null) => Promise<Folder>;
     delete: (id: string) => Promise<{ deleted: boolean; id: string }>;
+    downloadZip: (folderId: string, folderName: string) => Promise<{ canceled: boolean; savedPath?: string }>;
   };
   uploads: {
     create: (payload: {

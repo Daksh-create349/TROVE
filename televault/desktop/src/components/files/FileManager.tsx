@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import type { FileMetadata, Folder } from "@shared/types";
-import { UploadCloud, FolderOpen, ArrowUpDown, Trash2, Download, X, FolderUp, AlertTriangle, Loader2 } from "lucide-react";
+import { UploadCloud, FolderOpen, ArrowUpDown, Trash2, Download, X, FolderUp, FolderDown, AlertTriangle, Loader2 } from "lucide-react";
 import { useApp } from "../../context/AppContext";
 import { useTransfers } from "../../context/TransferContext";
 import { FolderCard } from "./FolderCard";
@@ -28,6 +28,7 @@ export function FileManager() {
     setSortOrder,
     selectedTag,
     deleteFolder,
+    downloadFolderAsZip,
     deleteMultipleFiles,
     downloadFile,
   } = useApp();
@@ -260,6 +261,22 @@ export function FileManager() {
         <div className="flex items-center gap-2.5 text-xs text-slate-500 dark:text-slate-400">
           <span>Items: {displayFiles.length + currentSubfolders.length}</span>
 
+          {currentFolderId && (
+            <button
+              type="button"
+              onClick={() => {
+                const currentFolder = folders.find((f) => f.id === currentFolderId);
+                const name = currentFolder ? currentFolder.name : "Folder";
+                downloadFolderAsZip(currentFolderId, name);
+              }}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-[#20283e] bg-white dark:bg-[#11192e] text-slate-700 dark:text-slate-200 hover:border-blue-500/40 hover:text-blue-500 dark:hover:text-white text-2xs font-semibold transition-all cursor-pointer shadow-xs"
+              title="Download this folder as a ZIP archive"
+            >
+              <FolderDown className="h-3.5 w-3.5 text-sky-500" />
+              <span>Download Folder as ZIP</span>
+            </button>
+          )}
+
           {displayFiles.length > 0 && (
             <button
               type="button"
@@ -346,6 +363,7 @@ export function FileManager() {
                 onClick={() => navigateToFolder(folder.id, folder.name)}
                 onContextMenu={(e) => handleFolderContextMenu(folder, e)}
                 onDelete={(f) => setFolderToDelete(f)}
+                onDownloadZip={(f) => downloadFolderAsZip(f.id, f.name)}
               />
             ))}
           </div>
