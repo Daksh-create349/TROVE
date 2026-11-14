@@ -22,74 +22,99 @@
 ---
 
 <p align="center">
-  <img src="assets/trove-dashboard.png" alt="Trove App Dashboard Preview" width="940" style="border-radius: 14px; box-shadow: 0 20px 60px rgba(0,0,0,0.6);" />
+  <img src="assets/trove-main-vault.jpg" alt="Trove Cloud Vault Application Dashboard" width="940" style="border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 60px rgba(0,0,0,0.6);" />
 </p>
 
 ---
 
-## ⚡ What is Trove?
+## What is Trove?
 
-**Trove** transforms your personal Telegram account's private "Saved Messages" into a high-speed, military-grade encrypted personal cloud filesystem. 
+Trove transforms your personal Telegram account's private "Saved Messages" into a high-speed, client-side encrypted personal cloud storage filesystem.
 
-Traditional cloud storage platforms limit you with strict quotas and recurring subscriptions. Trove provides a private, modern desktop interface to store, organize, preview, and download your files and entire folder trees seamlessly — without ever storing unencrypted files on any third-party server.
-
----
-
-## ✨ Key Features
-
-- 🔐 **Zero-Knowledge Client-Side Encryption**: Every file is encrypted locally on your machine using **AES-256-GCM** with a master key derived from your credentials. Telegram only sees randomized ciphertext blocks.
-- 📦 **Download Folder as ZIP**: Right-click or hover over any folder to package and stream entire nested directory hierarchies directly into a standard `.zip` archive on your Mac with zero RAM spikes.
-- ⚡ **Dynamic Chunking & Slicing**: Automatically fragments large files into safe 20 MB – 2 GB MTProto chunks, uploads them with exponential-backoff retries, and reconstructs them transparently on demand.
-- 📁 **Smart Folder Walker**: When uploading whole folders, Trove automatically ignores compiler junk and local environments (`node_modules`, `.venv`, `.git`, `.cache`, `.DS_Store`) to keep your vault clean and fast.
-- 🔋 **Battery & CPU Optimized**: Built for all-day laptop efficiency. Eliminates infinite re-render loops with single-instance interval timers and smart polling backoffs (< 2% idle CPU).
-- 📴 **Offline-First SQLite Cache**: Local SQLite metadata database means your folders and filenames are instantly browsable even when offline.
-- 🖼️ **Instant Previews**: Stream and view photos, videos, audio, and documents directly inside Trove without downloading the full files to disk.
-- 🍎 **Native macOS Desktop App**: Designed specifically for Apple Silicon with frameless dark-mode styling, macOS traffic lights, drag-and-drop ingestion, and native save dialogs.
+Traditional cloud providers impose arbitrary monthly storage tiers and recurring subscription fees. Trove offers an open, private, local-first macOS desktop application that lets you upload, organize, preview, and download files and nested folder hierarchies without ever exposing unencrypted data to any third-party server.
 
 ---
 
-## 📸 Screenshots & Setup Flow
+## Key Features
+
+- **Zero-Knowledge Client-Side Encryption**: Every file is encrypted on your machine using authenticated **AES-256-GCM** before transmission. Telegram MTProto servers store only randomized ciphertext segments.
+- **Download Folder as ZIP**: Right-click or hover on any folder card to package and stream entire nested directory hierarchies directly into a standard `.zip` archive on your Mac with zero RAM spikes.
+- **Dynamic Chunk Slicing**: Large files are automatically fragmented into safe 20 MB to 2 GB MTProto chunks with cryptographic SHA-256 integrity verification on every segment.
+- **Smart Directory Filter**: When uploading directories, Trove automatically skips local compiler artifacts and virtual environments (`node_modules`, `.venv`, `.git`, `.cache`, `.DS_Store`) to keep your cloud vault lightweight.
+- **Real-Time Transfer Dock**: Floating transfer monitor displaying active file counts, transfer speeds, progress percentages, and pause/resume/cancel controls.
+- **Offline-First SQLite Cache**: All folder hierarchies and file metadata are indexed locally in SQLite, keeping your library browsable and responsive regardless of network connectivity.
+- **Safe Folder & Batch Deletions**: Cascade file deletion with modal confirmations to prevent accidental data loss.
+- **Native macOS Desktop Application**: Optimized for Apple Silicon (M1/M2/M3/M4) with frameless dark-mode aesthetics, native window controls, and system file dialogs.
+- **Battery and CPU Efficiency**: Built with single-instance interval timers and smart polling backoffs (< 2% idle CPU usage).
+
+---
+
+## Application Showcase
+
+<p align="center">
+  <img src="assets/upload-progress.png" alt="Upload Progress Dock" width="900" style="border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);" />
+  <br>
+  <sub><b>Live Transfer Dock</b>: Real-time chunking progress, active file counter, and transfer controls.</sub>
+</p>
+
+<br>
 
 <table align="center" width="100%">
   <tr>
-    <td align="center" width="50%">
-      <img src="assets/connect-telegram.jpg" width="100%" alt="Connect Telegram Account" style="border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);" /><br>
-      <br><b>1. Instant Phone & OTP Login</b><br>
-      <sub>Direct official Telegram authentication without third-party brokers.</sub>
+    <td align="center" width="50%" valign="top">
+      <img src="assets/settings-account.jpg" width="100%" alt="Telegram Account Integration Settings" style="border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);" />
+      <br><br>
+      <b>Telegram MTProto Settings</b><br>
+      <sub>Direct connection status, user identity, and storage peer management.</sub>
     </td>
-    <td align="center" width="50%">
-      <img src="assets/telegram-api-setup.jpg" width="100%" alt="Developer Credentials Setup" style="border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);" /><br>
-      <br><b>2. Free Telegram Developer API Keys</b><br>
-      <sub>Link your own free API ID & API Hash from my.telegram.org in under 30 seconds.</sub>
+    <td align="center" width="50%" valign="top">
+      <img src="assets/folder-delete-modal.png" width="100%" alt="Delete Folder Confirmation Modal" style="border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);" />
+      <br><br>
+      <b>Safe Folder Deletion</b><br>
+      <sub>Confirmation guards to safely remove folders and cascaded contents from the vault.</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%" valign="top">
+      <img src="assets/connect-telegram.jpg" width="100%" alt="Telegram Phone Verification" style="border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);" />
+      <br><br>
+      <b>Official Phone & OTP Login</b><br>
+      <sub>Direct official Telegram authentication without third-party services.</sub>
+    </td>
+    <td align="center" width="50%" valign="top">
+      <img src="assets/telegram-api-setup.jpg" width="100%" alt="Developer Credentials Setup" style="border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);" />
+      <br><br>
+      <b>Telegram API Key Configuration</b><br>
+      <sub>Connect your own free API ID and API Hash from my.telegram.org in under a minute.</sub>
     </td>
   </tr>
 </table>
 
 ---
 
-## 🏛️ System Architecture
+## System Architecture
 
-Trove is built as a split-process, local-first desktop application. The Electron frontend communicates with an embedded, loopback-only Express daemon which talks to Telegram via the GramJS MTProto client.
+Trove operates as a split-process architecture. The Electron desktop renderer communicates with an embedded, loopback-only Express daemon that manages database transactions, cryptographic operations, and MTProto transport via GramJS.
 
 ```mermaid
 flowchart TD
-    subgraph Frontend ["💻 Trove Desktop (Electron + React 18 + Tailwind)"]
-        UI["File & Folder Manager Grid"]
-        DD["Drag & Drop Ingestion Engine"]
-        ZBTN["Download as ZIP Action"]
+    subgraph Frontend ["Trove Desktop (Electron + React 18 + Tailwind)"]
+        UI["File and Folder Manager"]
+        DD["Drag and Drop Ingestion"]
+        ZBTN["Download Folder as ZIP Action"]
         PVW["File Preview Lightbox"]
         BAR["Transfer Progress Dock"]
     end
 
-    subgraph LocalCore ["⚡ Local Core Service (Loopback Express :4787)"]
-        API["REST API Router (Local Token Guarded)"]
+    subgraph LocalCore ["Local Core Daemon (Loopback Express :4787)"]
+        API["REST API Router (Token Guarded)"]
         SQL[("SQLite Database (Metadata Only)")]
         CRYPT["AES-256-GCM Encryption Engine"]
-        CHUNK["Chunk Slicer & Verifier (SHA-256)"]
+        CHUNK["Chunk Slicer and Verifier (SHA-256)"]
         ZIP["Streaming FolderZipService"]
     end
 
-    subgraph CloudLayer ["☁️ Cloud Storage Layer"]
+    subgraph CloudLayer ["Telegram MTProto Layer"]
         GRAM["GramJS MTProto Client"]
         TG[("Telegram Saved Messages Cloud")]
     end
@@ -104,7 +129,7 @@ flowchart TD
     CHUNK --> GRAM
     GRAM -->|Encrypted Chunks| TG
     TG -->|Encrypted Blocks| GRAM
-    GRAM -->|Decrypt & Stream| PVW
+    GRAM -->|Decrypt and Stream| PVW
     GRAM -->|Pipe Chunks| ZIP
     ZIP -->|ZIP Stream| UI
     BAR -.->|Polls Progress| API
@@ -112,16 +137,16 @@ flowchart TD
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```
 TROVE/
-├── assets/                     # Official logos, screenshots, and visual mockups
+├── assets/                     # Application screenshots, diagrams, and logos
 ├── backend/                    # Core loopback service (Express, SQLite, MTProto)
 │   ├── src/api/                # REST endpoints (files, folders, uploads, downloads)
 │   ├── src/database/           # SQLite migrations, repositories, and schema
-│   ├── src/downloads/          # File streamer & download manager
-│   ├── src/folders/            # Folder management & FolderZipService
+│   ├── src/downloads/          # File streamer and download manager
+│   ├── src/folders/            # Folder management and FolderZipService
 │   ├── src/security/           # AES-256-GCM, SecretBox, API Token Guard
 │   ├── src/telegram/           # GramJS client, session store, FloodWait handlers
 │   └── src/uploads/            # Chunk calculation, staging, and upload queue
@@ -138,15 +163,15 @@ TROVE/
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
-- **macOS** (Apple Silicon M1/M2/M3/M4 or Intel)
-- **Node.js** >= 20.x
-- **npm** >= 10.x
+- macOS (Apple Silicon M1/M2/M3/M4 or Intel)
+- Node.js >= 20.x
+- npm >= 10.x
 - Free Telegram API ID & Hash from [my.telegram.org](https://my.telegram.org)
 
-### Installation from Source
+### Building from Source
 
 1. **Clone the repository:**
    ```bash
@@ -165,7 +190,6 @@ TROVE/
 
 3. **Run in Development Mode:**
    ```bash
-   # From the desktop directory
    cd desktop
    npm run dev
    ```
@@ -175,20 +199,20 @@ TROVE/
    cd desktop
    npm run package:mac
    ```
-   The built `.dmg` installer and `.app` bundle will be ready in `desktop/release/`.
+   The `.dmg` installer and `.app` bundle will be generated in `desktop/release/`.
 
 ---
 
-## 🔒 Security & Privacy Model
+## Security and Privacy Model
 
-- **No Remote Servers**: Trove does not operate any intermediate proxy or cloud relay. All traffic is direct from your machine to Telegram's MTProto datacenters.
-- **Client-Side Key Derivation**: The master key (`master.key`) never leaves your local machine (`~/Library/Application Support/Trove/data/master.key`).
-- **Cryptographic Envelope**: Every file payload is encrypted with authenticated **AES-256-GCM**. Tampering or corruption during transit is automatically caught via authentication tags.
-- **Strict Dotfile Exclusions**: Uploading a project folder will never leak `.env` secrets, `.git` histories, or compiler binaries to the cloud.
+- **Direct Communication**: Trove operates with zero intermediary relay servers. All communication travels directly between your computer and Telegram's MTProto datacenters.
+- **Client-Side Key Derivation**: Master keys remain strictly on your local machine (`~/Library/Application Support/Trove/data/master.key`) and are never transmitted over the network.
+- **Authenticated Encryption**: Every uploaded segment uses AES-256-GCM with distinct IVs. Any tampering or packet corruption in transit is rejected immediately.
+- **Exclusion Safeguards**: Scanning and uploading directories intentionally excludes hidden credentials, local virtual environments, and compiler caches.
 
 ---
 
-## 📄 License & Credits
+## License
 
-Built with precision by **Daksh Shrivastava**.  
-Distributed under the **MIT License**.
+Author: **Daksh Shrivastava**  
+License: **MIT**
