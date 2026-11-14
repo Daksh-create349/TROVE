@@ -8,10 +8,10 @@
   <meta name="description" content="Trove turns Telegram's distributed cloud infrastructure into your private, unlimited, zero-knowledge vault. Native desktop client for macOS with client-side AES-256-GCM encryption.">
   <link rel="icon" type="image/png" href="assets/logo.png">
 
-  <!-- Typography: Syne (Headings), Inter (Body), Roboto Mono (Labels) -->
+  <!-- Typography: Plus Jakarta Sans (Headings), Inter (Body), Roboto Mono (Labels) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -20,8 +20,8 @@
       theme: {
         extend: {
           fontFamily: {
-            syne: ['"Syne"', 'sans-serif'],
-            sans: ['"Inter"', 'sans-serif'],
+            heading: ['"Plus Jakarta Sans"', '"Inter"', 'system-ui', 'sans-serif'],
+            sans: ['"Inter"', 'system-ui', 'sans-serif'],
             mono: ['"Roboto Mono"', 'monospace'],
           },
           colors: {
@@ -121,7 +121,7 @@
     <!-- Top Brand Kicker -->
     <div class="flex items-center space-x-3 mb-8">
       <span class="w-2.5 h-2.5 rounded-full bg-liminary-blue"></span>
-      <span class="font-syne font-bold text-sm tracking-wider text-liminary-dark">TROVE</span>
+      <span class="font-heading font-bold text-sm tracking-wider text-liminary-dark">TROVE</span>
       <span class="text-liminary-border">|</span>
       <span class="text-xs font-mono font-medium text-liminary-muted uppercase tracking-wider">
         Personal Encrypted Cloud Storage
@@ -137,7 +137,7 @@
       <!-- Left Column: Headline, Description, Actions (7 cols) -->
       <div class="lg:col-span-7 space-y-6">
         
-        <h1 class="font-syne font-extrabold text-5xl sm:text-6xl lg:text-7xl tracking-tight text-liminary-dark leading-[1.05]">
+        <h1 class="font-heading font-extrabold text-5xl sm:text-6xl lg:text-7xl tracking-tight text-liminary-dark leading-[1.05]">
           Your storage<br>compounds here.
         </h1>
 
@@ -226,7 +226,7 @@
         <div class="text-[11px] font-mono uppercase text-liminary-muted tracking-wider mb-2">
           TRANSFER ENGINE
         </div>
-        <h3 class="font-syne font-bold text-base text-liminary-dark mb-1">
+        <h3 class="font-heading font-bold text-base text-liminary-dark mb-1">
           Streaming Transfer Dock
         </h3>
         <p class="text-xs text-liminary-body leading-relaxed">
@@ -238,7 +238,7 @@
         <div class="text-[11px] font-mono uppercase text-liminary-muted tracking-wider mb-2">
           DIRECT PROTOCOL
         </div>
-        <h3 class="font-syne font-bold text-base text-liminary-dark mb-1">
+        <h3 class="font-heading font-bold text-base text-liminary-dark mb-1">
           Direct MTProto Connection
         </h3>
         <p class="text-xs text-liminary-body leading-relaxed">
@@ -250,7 +250,7 @@
         <div class="text-[11px] font-mono uppercase text-liminary-muted tracking-wider mb-2">
           SAFETY & INTEGRITY
         </div>
-        <h3 class="font-syne font-bold text-base text-liminary-dark mb-1">
+        <h3 class="font-heading font-bold text-base text-liminary-dark mb-1">
           Atomic Folder Deletion
         </h3>
         <p class="text-xs text-liminary-body leading-relaxed">
@@ -270,7 +270,7 @@
         <div class="text-xs font-mono uppercase tracking-wider text-liminary-muted mb-2">
           INSTALLATION & PACKAGES
         </div>
-        <h2 class="font-syne font-bold text-3xl sm:text-4xl text-liminary-dark leading-tight">
+        <h2 class="font-heading font-bold text-3xl sm:text-4xl text-liminary-dark leading-tight">
           Native desktop performance across platforms.
         </h2>
         <p class="font-sans text-base text-liminary-body mt-3 leading-relaxed">
@@ -298,7 +298,7 @@
             </div>
 
             <!-- Title & Architecture Details -->
-            <h3 class="font-syne font-bold text-2xl text-liminary-dark mb-1">macOS</h3>
+            <h3 class="font-heading font-bold text-2xl text-liminary-dark mb-1">macOS</h3>
             <p class="text-xs font-mono text-liminary-muted mb-4">
               Apple Silicon (M1 / M2 / M3 / M4) · macOS 12+
             </p>
@@ -362,7 +362,7 @@
             </div>
 
             <!-- Title & Architecture Details -->
-            <h3 class="font-syne font-bold text-2xl text-liminary-dark mb-1">Windows</h3>
+            <h3 class="font-heading font-bold text-2xl text-liminary-dark mb-1">Windows</h3>
             <p class="text-xs font-mono text-liminary-muted mb-4">
               Windows 11 / 10 · 64-bit (x64) & ARM64
             </p>
@@ -414,7 +414,7 @@
             </div>
 
             <!-- Title & Architecture Details -->
-            <h3 class="font-syne font-bold text-2xl text-liminary-dark mb-1">Linux</h3>
+            <h3 class="font-heading font-bold text-2xl text-liminary-dark mb-1">Linux</h3>
             <p class="text-xs font-mono text-liminary-muted mb-4">
               Ubuntu, Debian, Fedora, Arch · x86_64 & aarch64
             </p>
@@ -460,7 +460,7 @@
       <div class="text-xs font-mono uppercase tracking-wider text-liminary-muted">
         CLIENT-SIDE SECURITY
       </div>
-      <h2 class="font-syne font-bold text-3xl sm:text-4xl text-liminary-dark leading-tight">
+      <h2 class="font-heading font-bold text-3xl sm:text-4xl text-liminary-dark leading-tight">
         Your files stay confidential. Period.
       </h2>
       <p class="font-sans text-base text-liminary-body leading-relaxed">
@@ -475,7 +475,7 @@
         <div class="w-10 h-10 rounded-xl bg-liminary-iceBlue text-liminary-slateText flex items-center justify-center font-mono font-bold text-sm mb-6">
           256
         </div>
-        <h3 class="font-syne font-bold text-xl text-liminary-dark mb-2">
+        <h3 class="font-heading font-bold text-xl text-liminary-dark mb-2">
           Authenticated Cipher Engine
         </h3>
         <p class="text-sm text-liminary-body leading-relaxed mb-4">
@@ -490,7 +490,7 @@
         <div class="w-10 h-10 rounded-xl bg-liminary-warmPill text-liminary-warmText flex items-center justify-center font-mono font-bold text-sm mb-6">
           0.0
         </div>
-        <h3 class="font-syne font-bold text-xl text-liminary-dark mb-2">
+        <h3 class="font-heading font-bold text-xl text-liminary-dark mb-2">
           Zero Telemetry or Intermediaries
         </h3>
         <p class="text-sm text-liminary-body leading-relaxed mb-4">
@@ -514,7 +514,7 @@
           <div class="text-xs font-mono uppercase tracking-wider text-liminary-muted mb-2">
             FOLDERS & COMPRESSION
           </div>
-          <h2 class="font-syne font-bold text-3xl sm:text-4xl text-liminary-dark leading-tight">
+          <h2 class="font-heading font-bold text-3xl sm:text-4xl text-liminary-dark leading-tight">
             Save what matters.<br>Download folder as ZIP on the fly.
           </h2>
           <p class="font-sans text-base text-liminary-body mt-4 leading-relaxed">
@@ -525,7 +525,7 @@
             <div class="p-4 rounded-2xl bg-[#faf8f6] border border-liminary-border flex items-start space-x-3.5">
               <span class="w-2 h-2 rounded-full bg-liminary-blue mt-2"></span>
               <div>
-                <h4 class="font-syne font-semibold text-sm text-liminary-dark">Smart Project Upload Filter</h4>
+                <h4 class="font-heading font-semibold text-sm text-liminary-dark">Smart Project Upload Filter</h4>
                 <p class="text-xs text-liminary-body mt-0.5">Automatically skips <code class="text-[11px] font-mono bg-white px-1 py-0.5 rounded border border-liminary-border">node_modules</code>, <code class="text-[11px] font-mono bg-white px-1 py-0.5 rounded border border-liminary-border">.venv</code>, <code class="text-[11px] font-mono bg-white px-1 py-0.5 rounded border border-liminary-border">.git</code>, and build caches so your cloud vault stays clean.</p>
               </div>
             </div>
@@ -533,7 +533,7 @@
             <div class="p-4 rounded-2xl bg-[#faf8f6] border border-liminary-border flex items-start space-x-3.5">
               <span class="w-2 h-2 rounded-full bg-liminary-blue mt-2"></span>
               <div>
-                <h4 class="font-syne font-semibold text-sm text-liminary-dark">Streaming Memory Pipeline</h4>
+                <h4 class="font-heading font-semibold text-sm text-liminary-dark">Streaming Memory Pipeline</h4>
                 <p class="text-xs text-liminary-body mt-0.5">Streams archive chunks straight to your download folder. Safely packages multi-gigabyte directories without filling temporary swap space.</p>
               </div>
             </div>
@@ -562,7 +562,7 @@
       <div class="text-xs font-mono uppercase tracking-wider text-liminary-muted mb-2">
         RESOURCE ARCHITECTURE
       </div>
-      <h2 class="font-syne font-bold text-3xl sm:text-4xl text-liminary-dark leading-tight">
+      <h2 class="font-heading font-bold text-3xl sm:text-4xl text-liminary-dark leading-tight">
         Built for battery life and silence.
       </h2>
       <p class="font-sans text-base text-liminary-body mt-3 leading-relaxed">
@@ -573,7 +573,7 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       
       <div class="liminary-card p-6">
-        <div class="text-3xl font-syne font-bold text-liminary-dark mb-1">&lt; 2%</div>
+        <div class="text-3xl font-heading font-bold text-liminary-dark mb-1">&lt; 2%</div>
         <div class="text-xs font-mono uppercase text-liminary-muted mb-3">IDLE CPU USAGE</div>
         <p class="text-xs text-liminary-body leading-relaxed">
           Event-driven TransferContext interval replaces continuous render-loop state recalculations, keeping Mac laptop fans completely silent.
@@ -581,7 +581,7 @@
       </div>
 
       <div class="liminary-card p-6">
-        <div class="text-3xl font-syne font-bold text-liminary-dark mb-1">&lt; 1ms</div>
+        <div class="text-3xl font-heading font-bold text-liminary-dark mb-1">&lt; 1ms</div>
         <div class="text-xs font-mono uppercase text-liminary-muted mb-3">METADATA SEARCH</div>
         <p class="text-xs text-liminary-body leading-relaxed">
           Embedded SQLite engine operating in Write-Ahead Logging (WAL) mode enables instantaneous directory navigation and search without network lag.
@@ -589,7 +589,7 @@
       </div>
 
       <div class="liminary-card p-6">
-        <div class="text-3xl font-syne font-bold text-liminary-dark mb-1">20 MB</div>
+        <div class="text-3xl font-heading font-bold text-liminary-dark mb-1">20 MB</div>
         <div class="text-xs font-mono uppercase text-liminary-muted mb-3">DYNAMIC CHUNK STREAM</div>
         <p class="text-xs text-liminary-body leading-relaxed">
           Files of any size are segmented into clean 20 MB parts with SHA-256 chunk validation, preventing upload stalls on large media archives.
@@ -607,7 +607,7 @@
         <div class="text-xs font-mono uppercase tracking-wider text-liminary-muted mb-2">
           BENCHMARKS & COMPARISON
         </div>
-        <h2 class="font-syne font-bold text-3xl text-liminary-dark">
+        <h2 class="font-heading font-bold text-3xl text-liminary-dark">
           How Trove compares
         </h2>
       </div>
@@ -674,7 +674,7 @@
       <div class="space-y-3 max-w-sm">
         <div class="flex items-center space-x-2.5">
           <img src="assets/logo.png" alt="Trove" class="w-6 h-6 object-contain rounded">
-          <span class="font-syne font-bold text-lg text-liminary-dark">TROVE</span>
+          <span class="font-heading font-bold text-lg text-liminary-dark">TROVE</span>
         </div>
         <p class="text-xs text-liminary-body leading-relaxed">
           Personal encrypted cloud storage backed by Telegram MTProto. Zero vendor lock-in. Zero monthly bills.
