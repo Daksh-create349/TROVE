@@ -16,7 +16,7 @@
   <img src="https://img.shields.io/badge/Storage-Telegram%20MTProto-0284c7?style=for-the-badge&logo=telegram" alt="Storage" />
   <img src="https://img.shields.io/badge/Encryption-AES--256--GCM-10b981?style=for-the-badge&logo=shield" alt="Encryption" />
   <img src="https://img.shields.io/badge/Stack-Electron%20%7C%20React%20%7C%20TypeScript-8b5cf6?style=for-the-badge&logo=typescript" alt="Stack" />
-  <img src="https://img.shields.io/badge/Status-Production%20Ready-emerald?style=for-the-badge" alt="Status" />
+  <img src="https://img.shields.io/badge/License-MIT-gray?style=for-the-badge" alt="License" />
 </p>
 
 ---
@@ -27,65 +27,143 @@
 
 ---
 
-## What is Trove?
+## Table of Contents
 
-Trove transforms your personal Telegram account's private "Saved Messages" into a high-speed, client-side encrypted personal cloud storage filesystem.
-
-Traditional cloud providers impose arbitrary monthly storage tiers and recurring subscription fees. Trove offers an open, private, local-first macOS desktop application that lets you upload, organize, preview, and download files and nested folder hierarchies without ever exposing unencrypted data to any third-party server.
-
----
-
-## Key Features
-
-- **Zero-Knowledge Client-Side Encryption**: Every file is encrypted on your machine using authenticated **AES-256-GCM** before transmission. Telegram MTProto servers store only randomized ciphertext segments.
-- **Download Folder as ZIP**: Right-click or hover on any folder card to package and stream entire nested directory hierarchies directly into a standard `.zip` archive on your Mac with zero RAM spikes.
-- **Dynamic Chunk Slicing**: Large files are automatically fragmented into safe 20 MB to 2 GB MTProto chunks with cryptographic SHA-256 integrity verification on every segment.
-- **Smart Directory Filter**: When uploading directories, Trove automatically skips local compiler artifacts and virtual environments (`node_modules`, `.venv`, `.git`, `.cache`, `.DS_Store`) to keep your cloud vault lightweight.
-- **Real-Time Transfer Dock**: Floating transfer monitor displaying active file counts, transfer speeds, progress percentages, and pause/resume/cancel controls.
-- **Offline-First SQLite Cache**: All folder hierarchies and file metadata are indexed locally in SQLite, keeping your library browsable and responsive regardless of network connectivity.
-- **Safe Folder & Batch Deletions**: Cascade file deletion with modal confirmations to prevent accidental data loss.
-- **Native macOS Desktop Application**: Optimized for Apple Silicon (M1/M2/M3/M4) with frameless dark-mode aesthetics, native window controls, and system file dialogs.
-- **Battery and CPU Efficiency**: Built with single-instance interval timers and smart polling backoffs (< 2% idle CPU usage).
+- [About Trove](#about-trove)
+- [How It Works](#how-it-works)
+- [Core Features](#core-features)
+- [Application Walkthrough](#application-walkthrough)
+- [System Architecture](#system-architecture)
+- [Security and Privacy](#security-and-privacy)
+- [Project Structure](#project-structure)
+- [Installation and Setup](#installation-and-setup)
+- [Frequently Asked Questions](#frequently-asked-questions)
+- [GitHub Repository Topics](#github-repository-topics)
+- [License and Author](#license-and-author)
 
 ---
 
-## Application Showcase
+## About Trove
+
+Trove is an open-source, local-first macOS desktop application that turns your personal Telegram account into a private, high-capacity cloud drive.
+
+### The Problem
+Traditional cloud providers like Google Drive, Dropbox, and OneDrive lock users into recurring monthly subscription fees once they pass small free storage tiers (typically 5 GB to 15 GB). Furthermore, standard cloud services store files unencrypted on their servers, meaning your documents, photos, and source code can be scanned or inspected.
+
+### The Trove Solution
+Telegram provides generous, free document storage through its MTProto protocol. Trove acts as a specialized desktop client that connects directly to your own Telegram account. 
+
+Before any file leaves your computer, Trove encrypts it on your Mac using AES-256-GCM. The encrypted data is then sliced into safe parts and stored inside your personal Telegram "Saved Messages" chat. Trove maintains a local SQLite database that indexes filenames, folder trees, and checksums so you can search, browse, organize, preview, and download your files just like a regular hard drive.
+
+---
+
+## How It Works
+
+1. **Local Encryption**: You select a file or folder on your Mac. Trove reads the raw bytes and encrypts them locally using AES-256-GCM and a private master key stored exclusively on your machine.
+2. **Chunk Slicing**: Large files are split into manageable chunks (from 20 MB up to 2 GB) so they upload reliably without timing out.
+3. **Telegram Upload**: Trove sends each encrypted chunk to your personal Telegram "Saved Messages" chat using the official Telegram MTProto protocol.
+4. **Local Indexing**: The file name, folder hierarchy, chunk IDs, and SHA-256 checksums are saved in a local SQLite database on your Mac.
+5. **On-Demand Retrieval**: When you preview or download a file, Trove pulls the encrypted chunks from Telegram, decrypts them in memory or temporary storage, and reconstructs the original file instantly.
+
+---
+
+## Core Features
+
+### High-Capacity Cloud Storage
+Stores your files directly in your Telegram Saved Messages chat. There are no monthly subscription bills, no artificial storage tiers, and no hidden account fees.
+
+### True Client-Side Encryption
+Uses AES-256-GCM authenticated encryption. Your master key is generated locally on your Mac and never sent across the internet. Telegram servers only receive scrambled ciphertext blocks and cannot read your file names or contents.
+
+### Download Folder as ZIP
+Download any folder and all of its nested subfolders as a standard `.zip` archive with one click. Trove streams each file directly from Telegram into the archive on disk, keeping memory consumption low regardless of folder size.
+
+### Smart Folder Upload Filter
+When uploading entire project directories, Trove automatically skips unnecessary compiler outputs, dependencies, and hidden cache directories (such as `node_modules`, `.venv`, `.git`, `.cache`, and `.DS_Store`). This prevents wasting bandwidth and storage on files that can be recreated locally with package managers.
+
+### Live Transfer Dock
+A persistent bottom progress dock displays active upload and download progress in real time. It shows current transfer speed, file counts, megabytes transferred, and includes one-click Pause and Cancel buttons.
+
+### Offline-First Browsing
+All vault metadata (filenames, folders, dates, file sizes) is stored in a local SQLite database. If your internet disconnects, your file list remains fully visible, searchable, and organized.
+
+### Instant Media and Document Preview
+Preview photos, video clips, audio files, code, and text files directly inside the app without needing to download the full file to your Desktop first.
+
+### Safe Deletion Guards
+Deleting folders triggers a confirmation modal to prevent accidental data loss. Deleting a folder recursively removes all nested files from both your local database index and your Telegram Saved Messages storage.
+
+### Low CPU and Battery Friendly
+Engineered with single-instance interval timers and smart polling backoffs. When idle, Trove consumes less than 2% CPU, keeping your MacBook cool and saving battery.
+
+---
+
+## Application Walkthrough
+
+### 1. Main Vault Dashboard
+The primary interface provides a clear overview of your cloud storage metrics, root folders, and recent files.
 
 <p align="center">
-  <img src="assets/upload-progress.png" alt="Upload Progress Dock" width="900" style="border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);" />
-  <br>
-  <sub><b>Live Transfer Dock</b>: Real-time chunking progress, active file counter, and transfer controls.</sub>
+  <img src="assets/trove-main-vault.jpg" alt="Trove Main Vault Dashboard" width="920" style="border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);" />
 </p>
 
-<br>
+- **Top Bar**: Search bar with keyboard shortcut (`Ctrl+K`), vault synchronization button, direct Upload buttons, and view switcher (grid or list).
+- **Metric Cards**: Real-time counters showing Total Stored bytes, Indexed Files count, Local Cache size, and Upload Queue status.
+- **Folder Grid**: Interactive folder cards showing item counts and quick-action buttons on hover.
+- **File Grid**: Categorized file cards with size indicators and integrity status dots.
+
+---
+
+### 2. Live Transfer Progress Dock
+The transfer dock provides live feedback during batch uploads and downloads.
+
+<p align="center">
+  <img src="assets/upload-progress.png" alt="Upload Progress Dock" width="860" style="border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);" />
+</p>
+
+- Shows the active file name, current completion percentage, and completed file count (e.g. `34 of 50 completed`).
+- Includes interactive **Pause** and **Cancel** buttons to control transfers on the fly.
+
+---
+
+### 3. Telegram MTProto Integration and Security
+The settings panel gives you full transparency over your Telegram connection.
 
 <table align="center" width="100%">
   <tr>
     <td align="center" width="50%" valign="top">
       <img src="assets/settings-account.jpg" width="100%" alt="Telegram Account Integration Settings" style="border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);" />
       <br><br>
-      <b>Telegram MTProto Settings</b><br>
-      <sub>Direct connection status, user identity, and storage peer management.</sub>
+      <b>Telegram Connection Settings</b><br>
+      <sub>Displays active MTProto session, connected Telegram username, user ID, and target storage peer.</sub>
     </td>
     <td align="center" width="50%" valign="top">
       <img src="assets/folder-delete-modal.png" width="100%" alt="Delete Folder Confirmation Modal" style="border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);" />
       <br><br>
-      <b>Safe Folder Deletion</b><br>
-      <sub>Confirmation guards to safely remove folders and cascaded contents from the vault.</sub>
+      <b>Safe Deletion Modal</b><br>
+      <sub>Confirms before deleting a folder and cascading the delete to all nested items.</sub>
     </td>
   </tr>
+</table>
+
+---
+
+### 4. Simple First-Time Setup Flow
+Connecting your Telegram account takes less than two minutes.
+
+<table align="center" width="100%">
   <tr>
     <td align="center" width="50%" valign="top">
-      <img src="assets/connect-telegram.jpg" width="100%" alt="Telegram Phone Verification" style="border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);" />
+      <img src="assets/connect-telegram.jpg" width="100%" alt="Connect Telegram Account" style="border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);" />
       <br><br>
-      <b>Official Phone & OTP Login</b><br>
-      <sub>Direct official Telegram authentication without third-party services.</sub>
+      <b>Step 1: Phone Verification</b><br>
+      <sub>Enter your phone number to receive an official login code directly inside your Telegram app.</sub>
     </td>
     <td align="center" width="50%" valign="top">
       <img src="assets/telegram-api-setup.jpg" width="100%" alt="Developer Credentials Setup" style="border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);" />
       <br><br>
-      <b>Telegram API Key Configuration</b><br>
-      <sub>Connect your own free API ID and API Hash from my.telegram.org in under a minute.</sub>
+      <b>Step 2: Free Telegram API Keys</b><br>
+      <sub>Paste your free App API ID and API Hash from my.telegram.org to enable direct MTProto communication.</sub>
     </td>
   </tr>
 </table>
@@ -94,46 +172,68 @@ Traditional cloud providers impose arbitrary monthly storage tiers and recurring
 
 ## System Architecture
 
-Trove operates as a split-process architecture. The Electron desktop renderer communicates with an embedded, loopback-only Express daemon that manages database transactions, cryptographic operations, and MTProto transport via GramJS.
+Trove runs as two cooperating processes on your local machine: an Electron desktop application for the user interface, and a lightweight background Express service that handles cryptography, database management, and MTProto network calls.
 
 ```mermaid
 flowchart TD
-    subgraph Frontend ["Trove Desktop (Electron + React 18 + Tailwind)"]
+    subgraph Frontend ["Desktop Application (Electron + React 18)"]
         UI["File and Folder Manager"]
         DD["Drag and Drop Ingestion"]
-        ZBTN["Download Folder as ZIP Action"]
-        PVW["File Preview Lightbox"]
-        BAR["Transfer Progress Dock"]
+        ZIP_BTN["Download Folder as ZIP Action"]
+        PREV["File Preview Lightbox"]
+        DOCK["Transfer Progress Dock"]
     end
 
-    subgraph LocalCore ["Local Core Daemon (Loopback Express :4787)"]
-        API["REST API Router (Token Guarded)"]
-        SQL[("SQLite Database (Metadata Only)")]
-        CRYPT["AES-256-GCM Encryption Engine"]
-        CHUNK["Chunk Slicer and Verifier (SHA-256)"]
-        ZIP["Streaming FolderZipService"]
+    subgraph Core ["Local Core Service (Express on Loopback :4787)"]
+        ROUTER["REST API Router (Protected by Local Token)"]
+        SQL[("SQLite Database ( teledata.db )")]
+        CRYPTO["AES-256-GCM Encryption Engine"]
+        SLICER["Chunk Slicer and SHA-256 Verifier"]
+        ZIPPER["Streaming FolderZipService"]
     end
 
-    subgraph CloudLayer ["Telegram MTProto Layer"]
-        GRAM["GramJS MTProto Client"]
-        TG[("Telegram Saved Messages Cloud")]
+    subgraph Cloud ["Telegram Cloud Infrastructure"]
+        CLIENT["GramJS MTProto Client"]
+        STORAGE[("Telegram Saved Messages Storage")]
     end
 
-    UI -->|IPC Proxy| API
-    DD -->|File Paths| API
-    ZBTN -->|Stream Request| API
+    UI -->|IPC Calls| ROUTER
+    DD -->|File Paths| ROUTER
+    ZIP_BTN -->|Stream Request| ROUTER
     
-    API --> SQL
-    API --> CRYPT
-    CRYPT --> CHUNK
-    CHUNK --> GRAM
-    GRAM -->|Encrypted Chunks| TG
-    TG -->|Encrypted Blocks| GRAM
-    GRAM -->|Decrypt and Stream| PVW
-    GRAM -->|Pipe Chunks| ZIP
-    ZIP -->|ZIP Stream| UI
-    BAR -.->|Polls Progress| API
+    ROUTER --> SQL
+    ROUTER --> CRYPTO
+    CRYPTO --> SLICER
+    SLICER --> CLIENT
+    CLIENT -->|Encrypted Binary Blocks| STORAGE
+    STORAGE -->|Encrypted Blocks| CLIENT
+    CLIENT -->|Decrypt and Stream| PREV
+    CLIENT -->|Pipe Chunks| ZIPPER
+    ZIPPER -->|ZIP Archive Stream| UI
+    DOCK -.->|Polls Job Status| ROUTER
 ```
+
+### Architecture Highlights
+- **No Third-Party Servers**: Network requests travel solely between your Mac and Telegram's official MTProto servers.
+- **Protected Loopback API**: The backend listens strictly on `127.0.0.1`. Requests require an internal bearer token that changes per installation.
+- **Streaming Pipeline**: Large files and folder ZIP archives are piped using Node.js readable/writable streams to prevent high memory usage.
+
+---
+
+## Security and Privacy
+
+### Encryption Standard
+- **Cipher**: AES-256-GCM (Galois/Counter Mode).
+- **Authentication**: Every segment contains an authentication tag that detects any modification or corruption in transit.
+- **Master Key**: Derived locally and stored on your Mac in `~/Library/Application Support/Trove/data/master.key`. It is never uploaded anywhere.
+
+### What Telegram Sees
+- Telegram servers only see generic binary document attachments sent to your private "Saved Messages".
+- Telegram does not see your original filenames, folder paths, MIME types, or unencrypted file contents.
+
+### Local Credential Storage
+- Your Telegram session string and API token are stored locally inside `~/Library/Application Support/Trove/`.
+- The repository `.gitignore` strictly blocks all session files, database files, and keys from ever being committed to Git.
 
 ---
 
@@ -141,19 +241,19 @@ flowchart TD
 
 ```
 TROVE/
-├── assets/                     # Application screenshots, diagrams, and logos
+├── assets/                     # Screenshots, diagrams, and application icons
 ├── backend/                    # Core loopback service (Express, SQLite, MTProto)
-│   ├── src/api/                # REST endpoints (files, folders, uploads, downloads)
-│   ├── src/database/           # SQLite migrations, repositories, and schema
+│   ├── src/api/                # API routes (files, folders, uploads, downloads)
+│   ├── src/database/           # SQLite migrations, repositories, and models
 │   ├── src/downloads/          # File streamer and download manager
 │   ├── src/folders/            # Folder management and FolderZipService
 │   ├── src/security/           # AES-256-GCM, SecretBox, API Token Guard
-│   ├── src/telegram/           # GramJS client, session store, FloodWait handlers
-│   └── src/uploads/            # Chunk calculation, staging, and upload queue
+│   ├── src/telegram/           # GramJS client, session store, FloodWait handler
+│   └── src/uploads/            # Chunk calculator, staging, and upload queue
 ├── desktop/                    # Native Desktop App (Electron 33 + React 18 + Vite)
 │   ├── electron/               # Main process, preload bridge, backend supervisor
 │   ├── src/components/         # UI components (FileManager, FolderCard, Header)
-│   ├── src/context/            # AppContext, AuthContext, TransferContext
+│   ├── src/context/            # React context providers (App, Auth, Transfers)
 │   └── release/                # Packaged binaries (macOS ARM64 DMG & ZIP)
 ├── shared/                     # Shared TypeScript types and contracts
 ├── .env.example                # Example environment configuration
@@ -163,15 +263,15 @@ TROVE/
 
 ---
 
-## Getting Started
+## Installation and Setup
 
-### Prerequisites
-- macOS (Apple Silicon M1/M2/M3/M4 or Intel)
-- Node.js >= 20.x
-- npm >= 10.x
-- Free Telegram API ID & Hash from [my.telegram.org](https://my.telegram.org)
+### Method 1: Using the Pre-Built macOS Installer (Recommended)
+1. Download `Trove-0.1.0-arm64.dmg` from the releases section or use the installer on your Desktop.
+2. Open the `.dmg` file and drag **Trove** into your **Applications** folder.
+3. Open Trove from Applications or Spotlight.
 
-### Building from Source
+### Method 2: Building from Source
+Ensure you have **Node.js 20+** and **npm** installed on your Mac.
 
 1. **Clone the repository:**
    ```bash
@@ -179,40 +279,64 @@ TROVE/
    cd TROVE
    ```
 
-2. **Install dependencies:**
+2. **Install backend dependencies:**
    ```bash
-   # Install backend dependencies
-   cd backend && npm install
-
-   # Install desktop dependencies
-   cd ../desktop && npm install
+   cd backend
+   npm install
+   npm run build
    ```
 
-3. **Run in Development Mode:**
+3. **Install desktop dependencies:**
    ```bash
-   cd desktop
+   cd ../desktop
+   npm install
+   ```
+
+4. **Run in development mode:**
+   ```bash
    npm run dev
    ```
 
-4. **Package for macOS (Generate DMG):**
+5. **Package the macOS DMG:**
    ```bash
-   cd desktop
    npm run package:mac
    ```
-   The `.dmg` installer and `.app` bundle will be generated in `desktop/release/`.
+   The `.dmg` installer and `.app` bundle will be created in `desktop/release/`.
 
 ---
 
-## Security and Privacy Model
+## Frequently Asked Questions
 
-- **Direct Communication**: Trove operates with zero intermediary relay servers. All communication travels directly between your computer and Telegram's MTProto datacenters.
-- **Client-Side Key Derivation**: Master keys remain strictly on your local machine (`~/Library/Application Support/Trove/data/master.key`) and are never transmitted over the network.
-- **Authenticated Encryption**: Every uploaded segment uses AES-256-GCM with distinct IVs. Any tampering or packet corruption in transit is rejected immediately.
-- **Exclusion Safeguards**: Scanning and uploading directories intentionally excludes hidden credentials, local virtual environments, and compiler caches.
+### Does Telegram charge for this storage?
+No. Telegram provides cloud document storage as part of its standard service. Trove interfaces with your account using Telegram's official developer API.
+
+### Can Telegram read my files?
+No. All files are encrypted with AES-256-GCM on your Mac before they leave your computer. Telegram only stores encrypted binary data. Without your local master key, the data cannot be read.
+
+### What happens if my internet connection drops during an upload?
+Trove tracks uploads by segment. If your connection drops, the active transfer pauses. Once reconnected, you can resume the upload from where it stopped rather than starting over.
+
+### Why were some files in my folder skipped during upload?
+Trove is designed to keep your cloud vault clean and fast. When you upload a project directory, it automatically skips common developer cache directories like `node_modules`, `.venv`, `.git`, `.cache`, and `.DS_Store`. Your actual source code and documents are uploaded completely.
+
+### Can I download an entire folder back to my computer?
+Yes. Click the "Download as ZIP" button on any folder card or in the toolbar. Trove packages the entire folder tree into a single `.zip` file and saves it wherever you choose on your Mac.
 
 ---
 
-## License
+## GitHub Repository Topics
 
-Author: **Daksh Shrivastava**  
-License: **MIT**
+When configuring your repository on GitHub, use the following description and topics:
+
+### About Description
+> Personal encrypted cloud storage desktop app that turns Telegram Saved Messages into a private, high-capacity cloud drive.
+
+### Topics / Tags
+`cloud-storage` · `telegram-mtproto` · `electron` · `react` · `typescript` · `aes-256-gcm` · `macos` · `desktop-app` · `privacy` · `file-manager` · `local-first` · `sqlite` · `zero-knowledge`
+
+---
+
+## License and Author
+
+- **Author**: Daksh Shrivastava
+- **License**: MIT License. See [LICENSE](LICENSE) for details.
