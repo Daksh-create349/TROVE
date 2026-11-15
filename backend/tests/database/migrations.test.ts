@@ -160,7 +160,7 @@ describe("database migrations", () => {
     });
     context.services.uploadService.enqueue(file.id);
 
-    context.services.folderService.deleteFolder(folder.id);
+    db.prepare("DELETE FROM folders WHERE id = ?").run(folder.id);
     const updatedFile = context.services.fileService.getFile(file.id);
     expect(updatedFile.folderId).toBeNull();
 

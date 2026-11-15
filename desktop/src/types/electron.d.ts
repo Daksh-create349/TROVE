@@ -28,6 +28,7 @@ export interface TelevaultApi {
     maximize: () => Promise<void>;
     close: () => Promise<void>;
     isMaximized: () => Promise<boolean>;
+    onMaximizedChange?: (callback: (isMaximized: boolean) => void) => () => void;
   };
   dialog: {
     selectFiles: (options?: {

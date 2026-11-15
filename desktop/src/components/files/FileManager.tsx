@@ -217,7 +217,7 @@ export function FileManager() {
           e.preventDefault();
           setIsConfirmingBatchDelete(true);
         }
-      } else if (e.key === " " && selectedFileIds.size > 0) {
+      } else if ((e.key === " " || e.key === "Enter") && selectedFileIds.size > 0) {
         e.preventDefault();
         const id = Array.from(selectedFileIds)[0];
         const file = displayFiles.find((f) => f.id === id);

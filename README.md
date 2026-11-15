@@ -12,7 +12,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Platform-macOS%20ARM64%20%7C%20Apple%20Silicon-blue?style=for-the-badge&logo=apple" alt="Platform" />
+  <img src="https://img.shields.io/badge/Platform-Windows%20x64%20%7C%20macOS%20ARM64-blue?style=for-the-badge&logo=windows" alt="Platform" />
   <img src="https://img.shields.io/badge/Storage-Telegram%20MTProto-0284c7?style=for-the-badge&logo=telegram" alt="Storage" />
   <img src="https://img.shields.io/badge/Encryption-AES--256--GCM-10b981?style=for-the-badge&logo=shield" alt="Encryption" />
   <img src="https://img.shields.io/badge/Stack-Electron%20%7C%20React%20%7C%20TypeScript-8b5cf6?style=for-the-badge&logo=typescript" alt="Stack" />
@@ -45,7 +45,7 @@
 
 ## About Trove
 
-Trove is an open-source, local-first macOS desktop application that turns your personal Telegram account into a private, high-capacity cloud drive.
+Trove is an open-source, local-first cross-platform desktop application for **Windows** and **macOS** that turns your personal Telegram account into a private, high-capacity cloud drive.
 
 ### The Problem
 Traditional cloud providers like Google Drive, Dropbox, and OneDrive lock users into recurring monthly subscription fees once they pass small free storage tiers (typically 5 GB to 15 GB). Furthermore, standard cloud services store files unencrypted on their servers, meaning your documents, photos, and source code can be scanned or inspected.
@@ -53,16 +53,16 @@ Traditional cloud providers like Google Drive, Dropbox, and OneDrive lock users 
 ### The Trove Solution
 Telegram provides generous, free document storage through its MTProto protocol. Trove acts as a specialized desktop client that connects directly to your own Telegram account. 
 
-Before any file leaves your computer, Trove encrypts it on your Mac using AES-256-GCM. The encrypted data is then sliced into safe parts and stored inside your personal Telegram "Saved Messages" chat. Trove maintains a local SQLite database that indexes filenames, folder trees, and checksums so you can search, browse, organize, preview, and download your files just like a regular hard drive.
+Before any file leaves your computer, Trove encrypts it on your device using AES-256-GCM. The encrypted data is then sliced into safe parts and stored inside your personal Telegram "Saved Messages" chat. Trove maintains a local SQLite database that indexes filenames, folder trees, and checksums so you can search, browse, organize, preview, and download your files just like a regular hard drive.
 
 ---
 
 ## How It Works
 
-1. **Local Encryption**: You select a file or folder on your Mac. Trove reads the raw bytes and encrypts them locally using AES-256-GCM and a private master key stored exclusively on your machine.
+1. **Local Encryption**: You select a file or folder. Trove reads the raw bytes and encrypts them locally using AES-256-GCM and a private master key stored exclusively on your device.
 2. **Chunk Slicing**: Large files are split into manageable chunks (from 20 MB up to 2 GB) so they upload reliably without timing out.
 3. **Telegram Upload**: Trove sends each encrypted chunk to your personal Telegram "Saved Messages" chat using the official Telegram MTProto protocol.
-4. **Local Indexing**: The file name, folder hierarchy, chunk IDs, and SHA-256 checksums are saved in a local SQLite database on your Mac.
+4. **Local Indexing**: The file name, folder hierarchy, chunk IDs, and SHA-256 checksums are saved in a local SQLite database on your computer.
 5. **On-Demand Retrieval**: When you preview or download a file, Trove pulls the encrypted chunks from Telegram, decrypts them in memory or temporary storage, and reconstructs the original file instantly.
 
 ---
@@ -265,18 +265,40 @@ TROVE/
 
 ## Installation and Setup
 
-### Method 1: Using the Pre-Built macOS Installer (Recommended)
-1. Download **[Trove-0.1.0-arm64.dmg](https://github.com/Daksh-create349/TROVE/releases/download/v0.1.0/Trove-0.1.0-arm64.dmg)** from the [GitHub Releases page](https://github.com/Daksh-create349/TROVE/releases/tag/v0.1.0) or visit the [Trove Website](website/index.html).
+### Method 1: Windows (Recommended for Windows 10 & 11)
+
+Trove offers two Windows distributions:
+1. **Interactive Installer (NSIS)**:
+   - Download **[Trove Setup 0.1.0.exe](https://github.com/Daksh-create349/TROVE/releases/download/v0.1.0/Trove.Setup.0.1.0.exe)** from [GitHub Releases](https://github.com/Daksh-create349/TROVE/releases/tag/v0.1.0).
+   - Run the installer. Choose custom install location, enable Desktop and Start Menu shortcuts, and complete setup.
+   - SHA-256 Checksum: `2b88430b24b15de0907eacb3f7ca536006431074f0d39579f208f88025760c4e`
+2. **Standalone Portable Executable**:
+   - Download **[Trove 0.1.0.exe](https://github.com/Daksh-create349/TROVE/releases/download/v0.1.0/Trove.0.1.0.exe)**.
+   - Run directly without installation.
+   - SHA-256 Checksum: `8de53739da5c63689e2e126a1cc93227e37d138d14778b334685527a28187c91`
+
+Verify checksum in PowerShell:
+```powershell
+Get-FileHash "Trove Setup 0.1.0.exe" -Algorithm SHA256
+```
+
+---
+
+### Method 2: macOS (Apple Silicon M1 / M2 / M3 / M4)
+
+1. Download **[Trove-0.1.0-arm64.dmg](https://github.com/Daksh-create349/TROVE/releases/download/v0.1.0/Trove-0.1.0-arm64.dmg)** from [GitHub Releases](https://github.com/Daksh-create349/TROVE/releases/tag/v0.1.0).
 2. Open the `.dmg` file and drag **Trove** into your **Applications** folder.
 3. Open Trove from Applications or Spotlight.
-4. Verify checksum if desired:
+4. Verify checksum in Terminal:
    ```bash
    shasum -a 256 Trove-0.1.0-arm64.dmg
    # bf62b0fa0ebb57685c968ee089d4fc3f8db76eb333093a7544d1307c50e57adb
    ```
 
-### Method 2: Building from Source
-Ensure you have **Node.js 20+** and **npm** installed on your Mac.
+---
+
+### Method 3: Building from Source
+Ensure you have **Node.js 20+** and **npm** installed.
 
 1. **Clone the repository:**
    ```bash
@@ -284,10 +306,10 @@ Ensure you have **Node.js 20+** and **npm** installed on your Mac.
    cd TROVE
    ```
 
-2. **Install backend dependencies:**
+2. **Install backend dependencies and compile server:**
    ```bash
    cd backend
-   npm install
+   npm install --ignore-scripts
    npm run build
    ```
 
@@ -302,11 +324,10 @@ Ensure you have **Node.js 20+** and **npm** installed on your Mac.
    npm run dev
    ```
 
-5. **Package the macOS DMG:**
-   ```bash
-   npm run package:mac
-   ```
-   The `.dmg` installer and `.app` bundle will be created in `desktop/release/`.
+5. **Package for your operating system:**
+   - **Windows**: `npm run package:win` (produces `Trove Setup 0.1.0.exe` and `Trove 0.1.0.exe` in `desktop/release/`)
+   - **macOS**: `npm run package:mac` (produces `.dmg` and `.zip` in `desktop/release/`)
+   - **Linux**: `npm run package:linux` (produces `AppImage` and `.deb` in `desktop/release/`)
 
 ---
 
@@ -337,7 +358,7 @@ When configuring your repository on GitHub, use the following description and to
 > Personal encrypted cloud storage desktop app that turns Telegram Saved Messages into a private, high-capacity cloud drive.
 
 ### Topics / Tags
-`cloud-storage` · `telegram-mtproto` · `electron` · `react` · `typescript` · `aes-256-gcm` · `macos` · `desktop-app` · `privacy` · `file-manager` · `local-first` · `sqlite` · `zero-knowledge`
+`cloud-storage` · `telegram-mtproto` · `electron` · `react` · `typescript` · `aes-256-gcm` · `windows` · `macos` · `desktop-app` · `privacy` · `file-manager` · `local-first` · `sqlite` · `zero-knowledge`
 
 ---
 

@@ -167,8 +167,15 @@ In Phase 05, the complete **Desktop Frontend and Electron Application** has been
       6. Ready confirmation and dashboard entry.
   - **Local Security & Lock Screen (`UnlockScreen.tsx`)**:
     - If a local master app password is configured, TeleVault locks the application on launch, requiring password verification before showing sensitive vault files or Telegram tokens.
-  - **Cross-Platform Packaging (`electron-builder`)**:
+  - **Cross-Platform Packaging & Windows Optimization (`electron-builder`)**:
+    - Complete platform separation between macOS and Windows:
+      - **macOS (`darwin`)**: Native traffic light buttons (Close, Minimize, Zoom) in the top-left at `{ x: 16, y: 16 }` with automatic titlebar padding (`pl-20`) in onboarding and sidebar (`pt-9`), completely omitting custom right-side buttons.
+      - **Windows (`win32`)**: Custom authentic Windows 11/10 caption buttons (`WindowsWindowControls.tsx`) with dynamic Maximize/Restore icon toggling, Windows signature red hover (`#e81123`) on Close, Fitts' Law right-flush alignment, `app.setAppUserModelId("com.trove.desktop")` for taskbar grouping, two-way IPC window maximize state synchronization, and Windows keyboard shortcuts (`Ctrl+K`, `Ctrl+O`, `Ctrl+R` / `F5`, `Alt+Left`, `Delete`, `Enter`).
     - Configured for Windows (`nsis`, `portable`), macOS (`dmg`, `zip`), and Linux (`AppImage`, `deb`).
+    - Bundled production Windows release artifacts in `desktop/release/`:
+      - `Trove Setup 0.1.0.exe`: Interactive NSIS installer wizard with custom install location, Start Menu shortcuts, Desktop shortcut, and uninstaller.
+      - `Trove 0.1.0.exe`: Standalone portable executable.
+      - Bundled standalone Node.js runtime (`resources/bin/node.exe`) and prebuilt SQLite native addon (`better-sqlite3` win32-x64 binary).
 
 ---
 

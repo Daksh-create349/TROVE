@@ -11,9 +11,6 @@ import {
   Unlock,
   Smartphone,
   AlertCircle,
-  Minus,
-  Square,
-  X,
   Loader2,
   Sparkles,
   CheckCircle2,
@@ -22,6 +19,7 @@ import {
   Send,
 } from "lucide-react";
 import { TroveLogo } from "../common/Logo";
+import { WindowsWindowControls } from "../common/WindowsWindowControls";
 import {
   COUNTRY_CODES,
   buildE164PhoneNumber,
@@ -110,10 +108,7 @@ export function TroveOnboarding({ onComplete }: TroveOnboardingProps) {
     id?: string | null;
   } | null>(null);
 
-  // Window control actions
-  const handleWindowMinimize = () => window.televault?.window.minimize();
-  const handleWindowMaximize = () => window.televault?.window.maximize();
-  const handleWindowClose = () => window.televault?.window.close();
+  const isMac = typeof window !== "undefined" && window.televault?.platform === "darwin";
 
   // Search filter for country codes
   const filteredCountries = useMemo(() => {
@@ -404,7 +399,9 @@ export function TroveOnboarding({ onComplete }: TroveOnboardingProps) {
 
       {/* Top Frameless Titlebar with working window controls */}
       <header
-        className={`relative z-30 flex h-11 w-full shrink-0 items-center justify-between px-5 border-b backdrop-blur-md transition-colors duration-300 ${
+        className={`relative z-30 flex h-11 w-full shrink-0 items-center justify-between ${
+          isMac ? "pl-20 pr-5" : "pl-5 pr-0"
+        } border-b backdrop-blur-md transition-colors duration-300 ${
           isDark
             ? "border-slate-800/80 bg-[#0c1017]/80 text-white"
             : "border-slate-200/70 bg-white/70 text-slate-800"
@@ -428,56 +425,8 @@ export function TroveOnboarding({ onComplete }: TroveOnboardingProps) {
         {/* Center Draggable Region (Native Windows/Mac drag area) */}
         <div className="flex-1 h-full app-drag-region select-none" />
 
-        {/* Functional Window Controls on right (Strictly app-no-drag, clickable) */}
-        <div
-          className="flex items-center gap-1 app-no-drag z-50"
-          style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
-        >
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              handleWindowMinimize();
-            }}
-            title="Minimize"
-            className={`flex h-7 w-7 items-center justify-center rounded-md transition-colors cursor-pointer ${
-              isDark
-                ? "hover:bg-slate-800 text-slate-400 hover:text-white"
-                : "hover:bg-slate-200/80 text-slate-500 hover:text-slate-800"
-            }`}
-          >
-            <Minus className="h-3.5 w-3.5 pointer-events-none" />
-          </button>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              handleWindowMaximize();
-            }}
-            title="Maximize / Restore"
-            className={`flex h-7 w-7 items-center justify-center rounded-md transition-colors cursor-pointer ${
-              isDark
-                ? "hover:bg-slate-800 text-slate-400 hover:text-white"
-                : "hover:bg-slate-200/80 text-slate-500 hover:text-slate-800"
-            }`}
-          >
-            <Square className="h-3 w-3 pointer-events-none" />
-          </button>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              handleWindowClose();
-            }}
-            title="Close"
-            className="flex h-7 w-7 items-center justify-center rounded-md hover:bg-rose-500 text-slate-400 hover:text-white transition-colors cursor-pointer"
-          >
-            <X className="h-3.5 w-3.5 pointer-events-none" />
-          </button>
-        </div>
+        {/* Functional Window Controls on right (Strictly for Windows/Linux - native traffic lights on Mac) */}
+        <WindowsWindowControls />
       </header>
 
       {/* Main Content Area */}

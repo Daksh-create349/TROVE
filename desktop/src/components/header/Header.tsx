@@ -8,13 +8,11 @@ import {
   FolderUp,
   LayoutGrid,
   List,
-  Minus,
-  Square,
-  X,
   Activity,
 } from "lucide-react";
 import { useApp } from "../../context/AppContext";
 import { useTransfers } from "../../context/TransferContext";
+import { WindowsWindowControls } from "../common/WindowsWindowControls";
 
 export function Header() {
   const {
@@ -31,18 +29,6 @@ export function Header() {
   const { startUploadsFromPaths, startUploadFolder, activeCount, toggleTransfers } = useTransfers();
   const isMac = typeof window !== "undefined" && window.televault?.platform === "darwin";
 
-  // Keyboard shortcut Ctrl+K / Cmd+K to focus search
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        document.getElementById("header-search-input")?.focus();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
-
   const handleUploadClick = async () => {
     if (!window.televault) return;
     const paths = await window.televault.dialog.selectFiles({ multi: true });
@@ -51,13 +37,54 @@ export function Header() {
     }
   };
 
-  const handleWindowMinimize = () => window.televault?.window.minimize();
-  const handleWindowMaximize = () => window.televault?.window.maximize();
-  const handleWindowClose = () => window.televault?.window.close();
+  // Keyboard accessibility shortcuts for Windows & Mac
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't intercept when user is typing in input fields
+      const isInput = e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement;
+
+      // Ctrl+K / Cmd+K: Focus global search
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        document.getElementById("header-search-input")?.focus();
+        return;
+      }
+
+      // Ctrl+O: Open Upload File dialog (when not in an input)
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "o" && !isInput) {
+        e.preventDefault();
+        handleUploadClick();
+        return;
+      }
+
+      // F5 / Ctrl+R: Trigger Telegram Sync (when not in an input)
+      if ((e.key === "F5" || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "r")) && !isInput) {
+        e.preventDefault();
+        if (!isSyncing) {
+          startSync();
+        }
+        return;
+      }
+
+      // Alt+Left: Navigate back in breadcrumbs (Windows standard Explorer shortcut)
+      if (e.altKey && e.key === "ArrowLeft" && !isInput) {
+        if (folderBreadcrumbs.length > 1) {
+          e.preventDefault();
+          const prev = folderBreadcrumbs[folderBreadcrumbs.length - 2];
+          navigateToFolder(prev ? prev.id : null);
+        }
+        return;
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [folderBreadcrumbs, isSyncing, navigateToFolder, startSync]);
 
   return (
     <header
-      className="flex h-12 w-full items-center justify-between border-b border-slate-200/80 dark:border-[#141e38] bg-white/80 dark:bg-[#070b15] px-4 select-none relative transition-colors app-drag-region"
+      className={`flex h-12 w-full items-center justify-between border-b border-slate-200/80 dark:border-[#141e38] bg-white/80 dark:bg-[#070b15] ${
+        isMac ? "px-4" : "pl-4 pr-0"
+      } select-none relative transition-colors app-drag-region`}
       style={{ WebkitAppRegion: "drag" } as React.CSSProperties}
     >
       {/* Left: Navigation history & Breadcrumbs */}
@@ -240,44 +267,7 @@ export function Header() {
         {!isMac && (
           <>
             <div className="h-4 w-px bg-slate-200 dark:bg-slate-800 mx-1" />
-            <div
-              className="flex items-center gap-1 app-no-drag"
-              style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
-            >
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleWindowMinimize();
-                }}
-                title="Minimize"
-                className="flex h-6 w-6 items-center justify-center rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
-              >
-                <Minus className="h-3 w-3 pointer-events-none" />
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleWindowMaximize();
-                }}
-                title="Maximize / Restore"
-                className="flex h-6 w-6 items-center justify-center rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
-              >
-                <Square className="h-2.5 w-2.5 pointer-events-none" />
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleWindowClose();
-                }}
-                title="Close"
-                className="flex h-6 w-6 items-center justify-center rounded hover:bg-rose-600 text-slate-500 dark:text-slate-400 hover:text-white transition-colors cursor-pointer"
-              >
-                <X className="h-3 w-3 pointer-events-none" />
-              </button>
-            </div>
+            <WindowsWindowControls />
           </>
         )}
       </div>

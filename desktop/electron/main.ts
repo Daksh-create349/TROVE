@@ -36,7 +36,16 @@ const profileSecurity = new ProfileSecurityManager();
 const isDev = process.env.NODE_ENV === "development" || !app.isPackaged;
 
 async function createWindow() {
-  const iconPath = existsSync(join(__dirname, "../build/icon.png"))
+  const isMac = process.platform === "darwin";
+  const isWin = process.platform === "win32";
+
+  if (isWin) {
+    app.setAppUserModelId("com.trove.desktop");
+  }
+
+  const iconPath = existsSync(join(__dirname, "../build/icon.ico"))
+    ? join(__dirname, "../build/icon.ico")
+    : existsSync(join(__dirname, "../build/icon.png"))
     ? join(__dirname, "../build/icon.png")
     : existsSync(join(__dirname, "../public/logo.png"))
     ? join(__dirname, "../public/logo.png")
@@ -48,12 +57,13 @@ async function createWindow() {
     minWidth: 1024,
     minHeight: 680,
     frame: false,
-    titleBarStyle: "hidden",
+    titleBarStyle: isMac ? "hidden" : undefined,
     titleBarOverlay: false,
-    trafficLightPosition: { x: 16, y: 16 },
+    trafficLightPosition: isMac ? { x: 16, y: 16 } : undefined,
     backgroundColor: "#0d0e12",
     icon: iconPath,
     show: false,
+    autoHideMenuBar: true,
     webPreferences: {
       preload: existsSync(join(__dirname, "preload.cjs"))
         ? join(__dirname, "preload.cjs")
@@ -62,6 +72,14 @@ async function createWindow() {
       nodeIntegration: false,
       sandbox: false, // needed for typed preload IPC
     },
+  });
+
+  // Keep renderer updated with window maximize/restore state
+  mainWindow.on("maximize", () => {
+    mainWindow?.webContents.send("window:maximized-change", true);
+  });
+  mainWindow.on("unmaximize", () => {
+    mainWindow?.webContents.send("window:maximized-change", false);
   });
 
   mainWindow.once("ready-to-show", () => {
